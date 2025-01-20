@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import school.hei.asa.model.DailyExecution;
 import school.hei.asa.model.MissionExecution;
-import school.hei.asa.model.Worker;
 import school.hei.asa.repository.jrepository.JMissionExecutionRepository;
 import school.hei.asa.repository.jrepository.JMissionRepository;
 import school.hei.asa.repository.jrepository.JWorkerRepository;
@@ -26,7 +25,6 @@ public class DailyExecutionRepository {
   private final JMissionRepository jMissionRepository;
 
   private final MissionExecutionMapper missionExecutionMapper;
-  private final MissionExecutionRepository missionExecutionRepository;
 
   @Transactional
   public void save(DailyExecution dailyExecution) {
@@ -56,15 +54,5 @@ public class DailyExecutionRepository {
     meByWorker.forEach(
         (worker, meListOfWorker) ->
             dailyExecutions.add(new DailyExecution(worker, date, meListOfWorker)));
-  }
-
-  @Transactional
-  public List<DailyExecution> findAllBy(Worker worker) {
-    var meListByDate = missionExecutionRepository.missionExecutionsBy(worker);
-    List<DailyExecution> dailyExecutions = new ArrayList<>();
-    meListByDate.forEach(
-        (date, meListOfDate) ->
-            dailyExecutions.add(new DailyExecution(worker, date, meListOfDate)));
-    return dailyExecutions;
   }
 }

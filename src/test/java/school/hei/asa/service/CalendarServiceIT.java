@@ -25,7 +25,6 @@ import school.hei.asa.endpoint.rest.security.WorkerFromAuthentication;
 import school.hei.asa.model.Mission;
 import school.hei.asa.model.PartnerContractor;
 import school.hei.asa.model.Product;
-import school.hei.asa.model.Worker;
 import school.hei.asa.repository.MissionRepository;
 import school.hei.asa.repository.ProductRepository;
 import school.hei.asa.repository.WorkerRepository;
@@ -40,13 +39,13 @@ class CalendarServiceIT extends FacadeIT {
   @MockBean WorkerFromAuthentication workerFromAuthentication;
 
   Authentication authentication;
-  Worker authenticatedWorker;
+  String authenticatedWorkerCode = "worker-code";
 
   @Autowired CalendarService calendarService;
 
   @BeforeEach
   void setUp() {
-    authentication = setUpAuthentication();
+    authentication = authentication();
     setUpProductsAndMissions();
   }
 
@@ -72,8 +71,8 @@ class CalendarServiceIT extends FacadeIT {
             null,
             null));
 
-    var datesByDailyExecutionType =
-        calendarService.datesByDailyExecutionType(authenticatedWorker, 2024);
+    var worker = workerRepository.findByCode(authenticatedWorkerCode);
+    var datesByDailyExecutionType = calendarService.datesByDailyExecutionType(worker, 2024);
 
     var fullWorkDates = datesByDailyExecutionType.get(fullWork);
     assertEquals(1, fullWorkDates.size());
@@ -123,8 +122,8 @@ class CalendarServiceIT extends FacadeIT {
             null,
             null));
 
-    var datesByDailyExecutionType =
-        calendarService.datesByDailyExecutionType(authenticatedWorker, 2025);
+    var worker = workerRepository.findByCode(authenticatedWorkerCode);
+    var datesByDailyExecutionType = calendarService.datesByDailyExecutionType(worker, 2025);
     assertEquals(2, datesByDailyExecutionType.get(fullCare).size());
     assertEquals(0, datesByDailyExecutionType.get(fullWork).size());
     assertEquals(0, datesByDailyExecutionType.get(mixedWorkAndCare).size());
@@ -152,17 +151,17 @@ class CalendarServiceIT extends FacadeIT {
             null,
             null));
 
-    var datesByDailyExecutionType =
-        calendarService.datesByDailyExecutionType(authenticatedWorker, 2024);
+    var worker = workerRepository.findByCode(authenticatedWorkerCode);
+    var datesByDailyExecutionType = calendarService.datesByDailyExecutionType(worker, 2024);
 
     assertEquals(0, datesByDailyExecutionType.get(fullCare).size());
     assertEquals(0, datesByDailyExecutionType.get(fullWork).size());
     assertEquals(1, datesByDailyExecutionType.get(mixedWorkAndCare).size());
   }
 
-  private Authentication setUpAuthentication() {
+  private Authentication authentication() {
     var authentication = mock(Authentication.class);
-    authenticatedWorker = new PartnerContractor("worker-code", "name", "email");
+    var authenticatedWorker = new PartnerContractor(authenticatedWorkerCode, "name", "email");
     workerRepository.save(authenticatedWorker);
     when(workerFromAuthentication.apply(authentication))
         .thenReturn(Optional.of(authenticatedWorker));
