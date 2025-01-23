@@ -4,4 +4,4 @@ import java.util.List;
 import school.hei.asa.model.Mission;
 import school.hei.asa.model.MissionExecution;
 
-public record ThMissionExecution(Mission mission, List<MissionExecution> executions) {}
+public record ThMissionExecutions(Mission mission, List<MissionExecution> executions) {}

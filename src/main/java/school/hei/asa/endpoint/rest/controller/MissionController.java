@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import school.hei.asa.endpoint.rest.controller.mapper.ThDailyExecutionMapper;
+import school.hei.asa.endpoint.rest.controller.mapper.ThProductMapper;
 import school.hei.asa.endpoint.rest.model.th.ThDailyExecution;
 import school.hei.asa.model.DailyExecution;
 import school.hei.asa.repository.DailyExecutionRepository;
@@ -28,11 +29,12 @@ public class MissionController {
   private final ProductConf productConf;
   private final ThDailyExecutionMapper thDailyExecutionMapper;
   private final WorkerToModelAdder workerToModelAdder;
+  private final ThProductMapper thProductMapper;
 
   @GetMapping("/missions")
   public String getMissions(Model model, @RequestParam(required = false) String workerCode) {
     var products = productRepository.findAll();
-    model.addAttribute("products", products);
+    model.addAttribute("products", thProductMapper.toTh(products));
 
     workerToModelAdder.apply(workerCode, model);
     return "missions";

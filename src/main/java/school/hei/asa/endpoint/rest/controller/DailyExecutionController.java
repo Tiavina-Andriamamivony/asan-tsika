@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import school.hei.asa.endpoint.rest.controller.mapper.ThDailyExecutionFormMapper;
 import school.hei.asa.endpoint.rest.model.th.ThDailyExecutionForm;
 import school.hei.asa.endpoint.rest.model.th.ThMission;
+import school.hei.asa.endpoint.rest.model.th.ThMissionExecutions;
 import school.hei.asa.endpoint.rest.security.WorkerFromAuthentication;
 import school.hei.asa.repository.DailyExecutionRepository;
 import school.hei.asa.repository.MissionExecutionRepository;
@@ -29,7 +30,13 @@ public class DailyExecutionController {
   public String getDailyExecutionForm(Model model) {
     var sortedMissions =
         missionRepository.findAll().stream()
-            .map(mission -> new ThMission(mission.code(), mission.title()))
+            .map(
+                m ->
+                    new ThMission(
+                        m.code(),
+                        m.title(),
+                        m.description(),
+                        new ThMissionExecutions(m, m.executions().stream().toList())))
             .sorted(comparing(ThMission::getCode))
             .toList();
     model.addAttribute("missions", sortedMissions);

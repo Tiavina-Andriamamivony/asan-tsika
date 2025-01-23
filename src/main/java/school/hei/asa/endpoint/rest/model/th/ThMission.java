@@ -1,13 +1,22 @@
 package school.hei.asa.endpoint.rest.model.th;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import school.hei.asa.model.MissionExecution;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
 public class ThMission {
   String code;
   String title;
+  String description;
+  ThMissionExecutions missionExecutions;
+
+  public double executedDays() {
+    return missionExecutions.executions().stream()
+        .mapToDouble(MissionExecution::dayPercentage)
+        .sum();
+  }
 }

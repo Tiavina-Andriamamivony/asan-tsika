@@ -12,13 +12,13 @@
     <h2 th:text="'Missions by Products'"></h2>
     <ul>
         <li th:each="p: ${products}">
-            <strong th:text="${p.code()} + ': ' + ${p.name()} + ' (' + ${p.executedDays()} + '/'+ ${p.maxDurationInDays()} +')'"
+            <strong th:text="${p.code()} + ': ' + ${p.name()} + ' (' + ${p.executedDays()} + ')'"
                     th:title="${p.description()}">
             </strong>
             <ul>
                 <li th:each="m: ${p.missions()}"
-                    th:text="${m.code()} + ': ' + ${m.title()} + ' (' + ${m.executedDays()} + '/'+ ${m.maxDurationInDays()} +')'"
-                    th:title="${m.description()}">
+                    th:text="${m.getCode()} + ': ' + ${m.getTitle()} + ' (' + ${m.executedDays()}  + ')'"
+                    th:title="${m.getDescription()}">
                 </li>
             </ul>
         </li>
