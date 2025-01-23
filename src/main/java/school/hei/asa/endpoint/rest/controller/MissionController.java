@@ -3,16 +3,22 @@ package school.hei.asa.endpoint.rest.controller;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import school.hei.asa.endpoint.rest.controller.mapper.ThDailyExecutionMapper;
 import school.hei.asa.endpoint.rest.model.th.ThDailyExecution;
 import school.hei.asa.model.DailyExecution;
+import school.hei.asa.model.Worker;
 import school.hei.asa.repository.DailyExecutionRepository;
 import school.hei.asa.repository.ProductRepository;
+import school.hei.asa.repository.WorkerRepository;
 import school.hei.asa.service.ProductConf;
 
 @Controller
@@ -23,6 +29,7 @@ public class MissionController {
   private final DailyExecutionRepository dailyExecutionRepository;
   private final ProductConf productConf;
   private final ThDailyExecutionMapper thDailyExecutionMapper;
+  private final WorkerRepository workerRepository;
 
   @GetMapping("/missions")
   public String getMissions(Model model) {
@@ -31,9 +38,9 @@ public class MissionController {
   }
 
   @GetMapping("/mission-executions")
-  public String getMissionExecutions(Model model) {
-    var dailyExecutionsByDate =
-        dailyExecutionRepository.findAll().stream().collect(groupingBy(DailyExecution::date));
+  public String getMissionExecutions(
+      Model model, @RequestParam(required = false) String workerCode) {
+    var dailyExecutionsByDate = dailyExecutionsByDate(workerCode);
     var thDailyExecutions = new ArrayList<ThDailyExecution>();
     dailyExecutionsByDate.forEach(
         (date, deList) -> thDailyExecutions.add(thDailyExecutionMapper.toTh(date, deList)));
@@ -41,6 +48,18 @@ public class MissionController {
         "dailyExecutions",
         thDailyExecutions.stream().sorted(comparing(ThDailyExecution::date).reversed()).toList());
     model.addAttribute("careProductCode", productConf.careProductCode());
+    model.addAttribute(
+        "workers", workerRepository.findAll().stream().sorted(comparing(Worker::name)));
     return "mission-executions";
+  }
+
+  private Map<LocalDate, List<DailyExecution>> dailyExecutionsByDate(String workerCode) {
+    List<DailyExecution> allDailyExecutions = dailyExecutionRepository.findAll();
+    var dailyExecutionsStream =
+        workerCode == null || workerCode.isBlank()
+            ? allDailyExecutions.stream()
+            : allDailyExecutions.stream()
+                .filter(dailyExecution -> workerCode.equals(dailyExecution.worker().code()));
+    return dailyExecutionsStream.collect(groupingBy(DailyExecution::date));
   }
 }

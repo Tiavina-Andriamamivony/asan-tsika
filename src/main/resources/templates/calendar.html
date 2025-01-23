@@ -19,7 +19,7 @@
             <option value="">Myself</option>
             <option th:each="worker : ${workers}"
                     th:value="${worker.code()}"
-                    th:text="${worker.name()}"/>
+                    th:text="${worker.name()}"></option>
         </select>
         <button type="submit">Submit</button>
     </form>
