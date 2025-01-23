@@ -13,16 +13,7 @@
 
 <div>
     <h2>Worker</h2>
-    <form th:action="@{/work-and-care-calendar}" method="get">
-        <label for="worker"></label>
-        <select id="worker" name="workerCode">
-            <option value="">Myself</option>
-            <option th:each="worker : ${workers}"
-                    th:value="${worker.code()}"
-                    th:text="${worker.name()}"></option>
-        </select>
-        <button type="submit">Submit</button>
-    </form>
+    <div th:replace="fragments/workerSelector :: workerSelector(work-and-care-calendar, Myself)"></div>
 </div>
 
 <div>

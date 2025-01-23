@@ -10,16 +10,7 @@
 
 <div>
     <h2>Worker</h2>
-    <form th:action="@{/mission-executions}" method="get">
-        <label for="worker"></label>
-        <select id="worker" name="workerCode">
-            <option value="">All</option>
-            <option th:each="worker : ${workers}"
-                    th:value="${worker.code()}"
-                    th:text="${worker.name()}"></option>
-        </select>
-        <button type="submit">Submit</button>
-    </form>
+    <div th:replace="fragments/workerSelector :: workerSelector(mission-executions, All)"></div>
 </div>
 
 <div>

@@ -1,0 +1,11 @@
+<form th:fragment="workerSelector(targetEndpoint, defaultOption)"
+      th:action="@{'/' + ${targetEndpoint}}" method="get">
+    <label for="worker"></label>
+    <select id="worker" name="workerCode">
+        <option th:text="${defaultOption}" value=""></option>
+        <option th:each="worker : ${workers}"
+                th:value="${worker.code()}"
+                th:text="${worker.name()}"></option>
+    </select>
+    <button type="submit">Submit</button>
+</form>
