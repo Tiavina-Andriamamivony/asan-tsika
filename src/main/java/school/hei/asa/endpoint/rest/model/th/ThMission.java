@@ -1,22 +1,27 @@
 package school.hei.asa.endpoint.rest.model.th;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.hei.asa.model.MissionExecution;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
+@Data
 public class ThMission {
   String code;
   String title;
   String description;
-  ThMissionExecutions missionExecutions;
+  List<ThMissionExecution> missionExecutions;
+  boolean isCare;
 
   public double executedDays() {
-    return missionExecutions.executions().stream()
-        .mapToDouble(MissionExecution::dayPercentage)
-        .sum();
+    return missionExecutions.stream().mapToDouble(ThMissionExecution::getDayPercentage).sum();
+  }
+
+  public ThMission filterByWorkerCode(String workerCode) {
+    var filteredExecutions =
+        missionExecutions.stream().filter(me -> workerCode.equals(me.workerCode)).toList();
+    return new ThMission(code, title, description, filteredExecutions, isCare);
   }
 }

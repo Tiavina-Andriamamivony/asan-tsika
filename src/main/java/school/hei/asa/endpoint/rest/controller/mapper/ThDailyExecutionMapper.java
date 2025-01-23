@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import school.hei.asa.endpoint.rest.model.th.ThDailyExecution;
-import school.hei.asa.endpoint.rest.model.th.ThMissionExecutions;
+import school.hei.asa.endpoint.rest.model.th.ThExecutionsPerMission;
 import school.hei.asa.model.DailyExecution;
 import school.hei.asa.model.MissionExecution;
 
@@ -20,13 +20,13 @@ public class ThDailyExecutionMapper {
         date, toTh(deList.stream().flatMap(de -> de.executions().stream()).toList()));
   }
 
-  private List<ThMissionExecutions> toTh(List<MissionExecution> meList) {
-    List<ThMissionExecutions> res = new ArrayList<>();
+  private List<ThExecutionsPerMission> toTh(List<MissionExecution> meList) {
+    List<ThExecutionsPerMission> res = new ArrayList<>();
     var meByMission = meList.stream().collect(groupingBy(MissionExecution::mission));
     meByMission.forEach(
         (mission, missionExecutions) ->
             res.add(
-                new ThMissionExecutions(
+                new ThExecutionsPerMission(
                     mission,
                     missionExecutions.stream()
                         .sorted(comparing(me -> me.worker().name()))

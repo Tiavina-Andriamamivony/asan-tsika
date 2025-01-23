@@ -48,6 +48,6 @@ public class Mission {
   }
 
   public boolean isCare(String careProductCode) {
-    return careProductCode.equals(product.code());
+    return product().isCare(careProductCode);
   }
 }

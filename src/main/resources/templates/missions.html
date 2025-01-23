@@ -9,7 +9,12 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div>
-    <h2 th:text="'Missions by Products'"></h2>
+    <h2>Worker</h2>
+    <div th:replace="fragments/workerSelector :: workerSelector(missions, All)"></div>
+</div>
+
+<div>
+    <h2 th:text="'Missions by Products - ' + ${worker == null ? 'All' : worker.name()}"></h2>
     <ul>
         <li th:each="p: ${products}">
             <strong th:text="${p.code()} + ': ' + ${p.name()} + ' (' + ${p.executedDays()} + ')'"

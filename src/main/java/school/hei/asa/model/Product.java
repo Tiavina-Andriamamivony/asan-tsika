@@ -35,4 +35,8 @@ public class Product {
     }
     missions.add(mission);
   }
+
+  public boolean isCare(String productCode) {
+    return code.equals(productCode);
+  }
 }

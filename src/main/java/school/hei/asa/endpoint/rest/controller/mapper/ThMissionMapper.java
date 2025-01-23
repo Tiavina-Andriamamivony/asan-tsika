@@ -1,17 +1,25 @@
 package school.hei.asa.endpoint.rest.controller.mapper;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.asa.CareProductCodeSupplier;
 import school.hei.asa.endpoint.rest.model.th.ThMission;
-import school.hei.asa.endpoint.rest.model.th.ThMissionExecutions;
 import school.hei.asa.model.Mission;
 
+@AllArgsConstructor
 @Component
 public class ThMissionMapper {
+
+  private final ThMissionExecutionMapper missionExecutionMapper;
+  private final CareProductCodeSupplier careProductCodeSupplier;
+
   public ThMission toTh(Mission mission) {
+    var isCare = mission.isCare(careProductCodeSupplier.get());
     return new ThMission(
         mission.code(),
         mission.title(),
         mission.description(),
-        new ThMissionExecutions(mission, mission.executions().stream().toList()));
+        mission.executions().stream().map(me -> missionExecutionMapper.toTh(me, isCare)).toList(),
+        isCare);
   }
 }

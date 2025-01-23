@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.hei.asa.CareProductCodeSupplier;
 import school.hei.asa.model.DailyExecution;
 import school.hei.asa.model.Worker;
 import school.hei.asa.model.WorkerCalendar;
@@ -14,13 +15,13 @@ import school.hei.asa.model.WorkerCalendar;
 @Service
 public class CalendarService {
 
-  private final ProductConf productConf;
+  private final CareProductCodeSupplier careProductCodeSupplier;
 
   @Transactional
   public Map<DailyExecution.Type, List<LocalDate>> datesByDailyExecutionType(
       Worker worker, int year) {
     return new WorkerCalendar(
-            worker, year, new school.hei.asa.model.ProductConf(productConf.careProductCode()))
+            worker, year, new school.hei.asa.model.ProductConf(careProductCodeSupplier.get()))
         .datesByDailyExecutionType();
   }
 }

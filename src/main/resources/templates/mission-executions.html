@@ -20,7 +20,7 @@
         <li th:each="dailyExecution: ${dailyExecutions}">
             <h3 th:text="${dailyExecution.date()}"></h3>
             <ul>
-                <li th:each="thMe: ${dailyExecution.thExecutions()}">
+                <li th:each="thMe: ${dailyExecution.thExecutionsPerMission()}">
                     <h4 th:text="${thMe.mission().code()} + ': ' + ${thMe.mission().title()}"
                         th:style="'color: ' + (${thMe.mission().isCare(careProductCode)} ? 'red' : 'black')"></h4>
                     <ul>

@@ -13,8 +13,14 @@ public class ThProduct {
   String name;
   String description;
   List<ThMission> missions;
+  boolean isCare;
 
   public double executedDays() {
     return missions.stream().mapToDouble(ThMission::executedDays).sum();
+  }
+
+  public ThProduct filterByWorkerCode(String workerCode) {
+    var filteredMissions = missions.stream().map(m -> m.filterByWorkerCode(workerCode)).toList();
+    return new ThProduct(code, name, description, filteredMissions, isCare);
   }
 }
