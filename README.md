@@ -16,7 +16,7 @@ Within a few clicks, you have your Spring Boot running with a publicly accessibl
 
 ### Locally
 
-First, set all following environment variables.
+First, set all following environment variables:
 ```
 ASA_LOGOUT_URL=
 AWS_SES_SOURCE=
