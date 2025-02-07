@@ -40,6 +40,10 @@ public class SecurityConfig {
                 oauth2
                     .successHandler(oAuth2SuccessHandler)
                     .failureHandler(
+                        // On success redirection from Cognito hits amazonaws.com URL instead of
+                        // custom domain URL
+                        // so it is incorrectly interpreted as authorization_request_not_found.
+                        // Redo the call and it will be Ok.
                         new SimpleUrlAuthenticationFailureHandler("/oauth2/authorization/cognito")))
         .logout(
             logout ->
