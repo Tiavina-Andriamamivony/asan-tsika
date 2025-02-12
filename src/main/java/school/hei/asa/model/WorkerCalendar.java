@@ -1,8 +1,6 @@
 package school.hei.asa.model;
 
 import static java.util.stream.Collectors.*;
-import static school.hei.asa.model.DailyExecution.Type.*;
-import static school.hei.asa.model.Mission.Type.*;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -10,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -20,7 +19,6 @@ public class WorkerCalendar {
   private final Worker worker;
   private final int year;
   private final ProductConf productConf;
-
   private final List<DailyExecution> dailyExecutions;
 
   public WorkerCalendar(Worker worker, int year, ProductConf productConf) {
@@ -56,33 +54,24 @@ public class WorkerCalendar {
         .toList();
   }
 
-  public Map<Month, Map<Mission.Type, Integer>> countMissionTypeByMonth() {
+  public Map<Month, Map<Mission.Type, Double>> missionExecutionPercentageSumByMissionType() {
     return dailyExecutions.stream()
         .collect(
             groupingBy(
                 dailyExecution -> dailyExecution.date().getMonth(),
-                groupingBy(this::determineMissionType, summingInt(dailyExecution -> 1))));
-  }
-
-  private Mission.Type determineMissionType(DailyExecution dailyExecution) {
-    var dailyExecutionType = dailyExecution.type(productConf.careProductCode());
-    if (fullWork.equals(dailyExecutionType)) {
-      return work;
-    } else if (fullCare.equals(dailyExecutionType) && hasPaidCare(dailyExecution)) {
-      return paidCare;
-    } else if (mixedWorkAndCare.equals(dailyExecutionType) && hasPaidCare(dailyExecution)) {
-      return paidCare;
-    }
-    return unpaidCare;
-  }
-
-  private boolean hasPaidCare(DailyExecution dailyExecution) {
-    return dailyExecution.executions().stream()
-        .anyMatch(
-            execution ->
-                paidCare.equals(
-                    execution
-                        .mission()
-                        .type(productConf.careProductCode(), productConf.paidCareMissionCode())));
+                mapping(
+                    dailyExecution -> dailyExecution.executions().stream(),
+                    collectingAndThen(
+                        flatMapping(
+                            Function.identity(),
+                            groupingBy(
+                                missionExecution ->
+                                    missionExecution
+                                        .mission()
+                                        .type(
+                                            productConf.careProductCode(),
+                                            productConf.paidCareMissionCodes()),
+                                summingDouble(MissionExecution::dayPercentage))),
+                        HashMap::new))));
   }
 }

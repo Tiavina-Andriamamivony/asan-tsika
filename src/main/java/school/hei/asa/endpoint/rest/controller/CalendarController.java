@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import school.hei.asa.endpoint.rest.model.th.ThYear;
 import school.hei.asa.endpoint.rest.security.WorkerFromAuthentication;
+import school.hei.asa.model.Mission;
 import school.hei.asa.model.Worker;
 import school.hei.asa.service.CalendarService;
 
@@ -46,17 +47,20 @@ public class CalendarController {
         workerCode == null || workerCode.isBlank()
             ? workerFromAuthentication.apply(authentication).get().code()
             : workerCode;
+
     var worker = workerToModelAdder.apply(workerCodeOrAuth, model);
-    var missionTypeByMonth = calendarService.countMissionTypeByMonth(worker, year);
-    Map<Month, Map<String, Integer>> missionCounts = new HashMap<>();
+
+    var missionTypeByMonth =
+        calendarService.missionExecutionPercentageSumByMissionType(worker, year);
+    Map<Month, Map<Mission.Type, Double>> missionCounts = new HashMap<>();
     missionTypeByMonth.forEach(
         (month, counts) -> {
-          Map<String, Integer> typeCounts =
-              counts.entrySet().stream()
-                  .collect(toMap(entry -> entry.getKey().name(), Map.Entry::getValue));
+          Map<Mission.Type, Double> typeCounts =
+              counts.entrySet().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
           missionCounts.put(month, typeCounts);
         });
 
+    model.addAttribute("workerCode", workerCodeOrAuth);
     model.addAttribute(
         "thYear",
         new ThYear(

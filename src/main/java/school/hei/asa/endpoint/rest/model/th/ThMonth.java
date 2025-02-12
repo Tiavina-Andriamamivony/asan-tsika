@@ -21,11 +21,11 @@ public class ThMonth {
   @Getter
   private final YearMonth yearMonth;
 
-  @Getter private Integer unpaidCareDays;
+  @Getter private Double unpaidCareDays;
 
-  @Getter private Integer paidCareDays;
+  @Getter private Double paidCareDays;
 
-  @Getter private Integer workDays;
+  @Getter private Double workDays;
 
   private final Map<Integer, List<Integer>> daysByWeek;
   public static final int FILLER_DAY = -1;
@@ -38,8 +38,7 @@ public class ThMonth {
     this.workDays = null;
   }
 
-  public ThMonth(
-      YearMonth yearMonth, Integer unpaidCareDays, Integer paidCareDays, Integer workDays) {
+  public ThMonth(YearMonth yearMonth, Double unpaidCareDays, Double paidCareDays, Double workDays) {
     this.yearMonth = yearMonth;
     this.daysByWeek = daysByWeek(yearMonth);
     this.unpaidCareDays = unpaidCareDays;

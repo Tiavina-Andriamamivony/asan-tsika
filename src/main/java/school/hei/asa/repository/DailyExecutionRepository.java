@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import school.hei.asa.model.DailyExecution;
@@ -42,6 +43,32 @@ public class DailyExecutionRepository {
     var jmeList = jMissionExecutionRepository.findAll();
     var meList = missionExecutionMapper.toDomain(jmeList, jWorkers, jMissions);
     var meListByDate = meList.stream().collect(groupingBy(MissionExecution::date));
+    List<DailyExecution> dailyExecutions = new ArrayList<>();
+    meListByDate.forEach(
+        (date, meListOfDate) -> addToDailyExecutions(date, meListOfDate, dailyExecutions));
+    return dailyExecutions;
+  }
+
+  public List<DailyExecution> findByDateBetween(LocalDate startDate, LocalDate endDate) {
+    var jWorkers = jWorkerRepository.findAll();
+    var jMissions = jMissionRepository.findAll();
+    var jmeList = jMissionExecutionRepository.findByDateBetween(startDate, endDate);
+    var meList = missionExecutionMapper.toDomain(jmeList, jWorkers, jMissions);
+    return groupExecutionsByDate(meList);
+  }
+
+  public List<DailyExecution> findByWorkerCodeAndDateBetween(
+      String workerCode, LocalDate startDate, LocalDate endDate) {
+    var jWorkers = jWorkerRepository.findAll();
+    var jMissions = jMissionRepository.findAll();
+    var jmeList =
+        jMissionExecutionRepository.findByWorkerCodeAndDateBetween(workerCode, startDate, endDate);
+    var meList = missionExecutionMapper.toDomain(jmeList, jWorkers, jMissions);
+    return groupExecutionsByDate(meList);
+  }
+
+  private List<DailyExecution> groupExecutionsByDate(List<MissionExecution> meList) {
+    var meListByDate = meList.stream().collect(Collectors.groupingBy(MissionExecution::date));
     List<DailyExecution> dailyExecutions = new ArrayList<>();
     meListByDate.forEach(
         (date, meListOfDate) -> addToDailyExecutions(date, meListOfDate, dailyExecutions));
