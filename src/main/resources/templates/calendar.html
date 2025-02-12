@@ -35,27 +35,11 @@
     </div>
 </div>
 
-<<<<<<< HEAD
-<div>
-    <h2>Color description</h2>
-    <ul th:each="description: ${thYear.colorDescriptions()}">
-        <li th:text="${description.getValue()}"
-            th:style="'color: ' + ${thYear.hexColor(description.getKey())} + ';'"></li>
-    </ul>
-</div>
-
-<div class="calendar">
-    <div class="month" th:each="month : ${thYear.months()}">
-        <h2 th:text="${month.yearMonth().month}"></h2>
-
-        <table>
-=======
 <div class="calendar bg-gray-50 py-6">
     <div th:each="month : ${thYear.months()}" class="month grid gap-4 px-6">
         <h2 th:text="${month.yearMonth().month}" class="text-center text-3xl font-semibold text-gray-800 mb-4"></h2>
 
         <table class="w-full bg-white rounded-lg shadow-md">
->>>>>>> prod
             <thead>
             <tr class="bg-gray-200 text-gray-800">
                 <th class="text-lg">Week</th>
@@ -89,7 +73,6 @@
     </div>
 </div>
 
-<<<<<<< HEAD
 <script>
     function updateFilters() {
         const workerCode = document.getElementById("worker").value;
@@ -100,9 +83,7 @@
         document.getElementById("worker").addEventListener("change", updateFilters);
     });
 </script>
-=======
 <div th:replace="fragments/footer :: footer"></div>
->>>>>>> prod
 
 </body>
 </html>

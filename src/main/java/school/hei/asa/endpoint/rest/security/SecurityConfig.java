@@ -20,7 +20,7 @@ public class SecurityConfig {
 
   public SecurityConfig(
       @Value("${spring.security.oauth2.client.registration.cognito.clientid}")
-      String cognitoClientId,
+          String cognitoClientId,
       @Value("${cognito.logout.url}") String cognitoLogoutUrl,
       @Value("${asa.logout.url}") String asaLogoutUrl,
       OAuth2SuccessHandler oAuth2SuccessHandler) {
@@ -51,10 +51,10 @@ public class SecurityConfig {
                     (request, response, authentication) ->
                         response.sendRedirect(
                             cognitoLogoutUrl
-                            + "?client_id="
-                            + cognitoClientId
-                            + "&logout_uri="
-                            + asaLogoutUrl)));
+                                + "?client_id="
+                                + cognitoClientId
+                                + "&logout_uri="
+                                + asaLogoutUrl)));
     return http.build();
   }
 }
