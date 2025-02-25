@@ -2,10 +2,13 @@ package school.hei.asa.endpoint.rest.controller;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -35,12 +38,23 @@ public class MissionController {
   @GetMapping("/missions")
   public String getMissions(Model model, @RequestParam(required = false) String workerCode) {
     var thProducts = thProductMapper.toTh(productRepository.findAll());
-    var filteredThProducts =
+    var filteredThProductsByWorkerCode =
         workerCode == null || workerCode.isBlank()
             ? thProducts
             : thProducts.stream().map(p -> p.filterByWorkerCode(workerCode)).toList();
-    model.addAttribute("products", filteredThProducts);
 
+    var filteredThProductsByMonth =
+        Arrays.stream(Month.values())
+            .collect(
+                toMap(
+                    month -> month,
+                    month ->
+                        filteredThProductsByWorkerCode.stream()
+                            .map(p -> p.filterByMonth(month))
+                            .toList()));
+
+    model.addAttribute("months", filteredThProductsByMonth);
+    model.addAttribute("products", filteredThProductsByWorkerCode);
     workerToModelAdder.apply(workerCode, model);
     return "missions";
   }
