@@ -31,6 +31,7 @@ public class MissionExecutionMapper {
     jme.setDate(Date.valueOf(me.date()));
     jme.setDayPercentage(me.dayPercentage());
     jme.setComment(me.comment());
+    jme.setReportedAt(me.reportedAt());
     return jme;
   }
 
@@ -47,7 +48,8 @@ public class MissionExecutionMapper {
                 cache.getOrDefault(JWorker.class, jWorkerCode, jme.getWorker()), cache)),
         jme.getDate().toLocalDate(),
         jme.getDayPercentage(),
-        jme.getComment());
+        jme.getComment(),
+        jme.getReportedAt());
   }
 
   public List<MissionExecution> toDomain(

@@ -7,6 +7,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.sql.Date;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,4 +36,7 @@ public class JMissionExecution {
   private double dayPercentage;
 
   private String comment;
+
+  @Column(name = "creation_instant")
+  private Instant reportedAt;
 }

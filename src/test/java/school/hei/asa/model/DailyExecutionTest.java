@@ -5,6 +5,7 @@ import static java.time.LocalDate.now;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,8 @@ class DailyExecutionTest {
             new DailyExecution(
                 worker,
                 now(),
-                List.of(new MissionExecution(mission, worker, now(), 0.2, "comment"))));
+                List.of(
+                    new MissionExecution(mission, worker, now(), 0.2, "comment", Instant.now()))));
   }
 
   @Test
@@ -36,10 +38,14 @@ class DailyExecutionTest {
                 worker,
                 now(),
                 List.of(
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment1"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment2"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.7"), "comment3"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment4"))));
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment1", Instant.now()),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment2", Instant.now()),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.7"), "comment3", Instant.now()),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment4", Instant.now()))));
   }
 
   @Test
@@ -47,6 +53,7 @@ class DailyExecutionTest {
     var product = new Product("pcode", "pname", "pdescription");
     var worker = new PartnerContractor("worker-code", "name", "email");
     var mission = new Mission("mission-code", "title", "description", 10, product);
+    var now = Instant.now();
 
     assertDoesNotThrow(
         () ->
@@ -54,13 +61,21 @@ class DailyExecutionTest {
                 worker,
                 now(),
                 List.of(
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment1"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment2"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.7"), "comment3"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment4"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment1"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment2"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.7"), "comment3"),
-                    new MissionExecution(mission, worker, now(), parseDouble("0.1"), "comment4"))));
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment1", now),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment2", now),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.7"), "comment3", now),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment4", now),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment1", now),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment2", now),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.7"), "comment3", now),
+                    new MissionExecution(
+                        mission, worker, now(), parseDouble("0.1"), "comment4", now))));
   }
 }

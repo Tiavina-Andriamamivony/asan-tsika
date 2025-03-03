@@ -1,11 +1,9 @@
 package school.hei.asa.model;
 
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.flatMapping;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.summingDouble;
+import static java.time.ZoneOffset.UTC;
+import static java.util.stream.Collectors.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
@@ -19,6 +17,8 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @Getter
 public class WorkerCalendar {
+
+  public static final int MINIMUM_LATE_DAYS = 3;
 
   private final Worker worker;
   private final int year;
@@ -75,5 +75,20 @@ public class WorkerCalendar {
                                             productConf.paidCareMissionCodes()),
                                 summingDouble(MissionExecution::dayPercentage))),
                         HashMap::new))));
+  }
+
+  public Map<Month, Long> lateReportedDaysByMonth() {
+    return dailyExecutions.stream()
+        .collect(
+            groupingBy(
+                dailyExecution -> dailyExecution.date().getMonth(),
+                filtering(this::isLateReported, counting())));
+  }
+
+  private boolean isLateReported(DailyExecution dailyExecution) {
+    Instant deadline =
+        dailyExecution.date().plusDays(MINIMUM_LATE_DAYS).atStartOfDay(UTC).toInstant();
+    return dailyExecution.executions().stream()
+        .anyMatch(missionExecution -> missionExecution.reportedAt().isAfter(deadline));
   }
 }
