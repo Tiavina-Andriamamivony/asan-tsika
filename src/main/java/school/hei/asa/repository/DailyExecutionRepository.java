@@ -1,14 +1,15 @@
 package school.hei.asa.repository;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
 
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import school.hei.asa.model.DailyExecution;
 import school.hei.asa.model.MissionExecution;
 import school.hei.asa.repository.jrepository.JMissionExecutionRepository;
@@ -21,14 +22,20 @@ import school.hei.asa.repository.model.JMissionExecution;
 @Repository
 public class DailyExecutionRepository {
 
+  private final MissionExecutionRepository missionExecutionRepository;
   private final JMissionExecutionRepository jMissionExecutionRepository;
   private final JWorkerRepository jWorkerRepository;
   private final JMissionRepository jMissionRepository;
 
   private final MissionExecutionMapper missionExecutionMapper;
 
-  @Transactional
+  @Transactional(isolation = SERIALIZABLE)
   public void save(DailyExecution dailyExecution) {
+    var date = dailyExecution.date();
+    if (!missionExecutionRepository.findAllBy(dailyExecution.worker(), date).isEmpty()) {
+      throw new IllegalArgumentException("Day already has MissionExecution: " + date);
+    }
+
     var toSave = new ArrayList<JMissionExecution>();
     dailyExecution
         .executions()
