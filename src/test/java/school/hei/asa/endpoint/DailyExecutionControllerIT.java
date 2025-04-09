@@ -100,7 +100,7 @@ class DailyExecutionControllerIT extends FacadeIT {
             .toList();
     assertEquals(1, savedDailyExecutions.size());
     var savedProduct = productRepository.findByCode("pcode");
-    assertEquals(1, savedProduct.executedDays());
+    assertEquals(1, savedProduct.executedDays(), 0);
   }
 
   @Test
