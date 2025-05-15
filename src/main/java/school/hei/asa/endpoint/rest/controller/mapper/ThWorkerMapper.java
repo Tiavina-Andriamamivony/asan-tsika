@@ -10,11 +10,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.asa.CareProductCodeSupplier;
 import school.hei.asa.endpoint.rest.model.th.ThWorkerLevelHistory;
+import school.hei.asa.model.MissionExecution;
 import school.hei.asa.model.Worker;
 import school.hei.asa.model.WorkerLevelHistory;
 import school.hei.asa.repository.MissionExecutionRepository;
 import school.hei.asa.repository.mapper.MissionMapper;
-import school.hei.asa.repository.model.JMissionExecution;
 
 @AllArgsConstructor
 @Component
@@ -72,13 +72,13 @@ public class ThWorkerMapper {
     return missionExecutionRepository
         .missionExecutionsByDateBetween(worker, startDate, endDate)
         .stream()
-        .filter(
-            jme -> {
-              var mission = missionMapper.toDomain(jme.getMission());
-              boolean isCare = mission.isCare(careProductCodeSupplier.get());
-              return !isCare;
-            })
-        .mapToDouble(JMissionExecution::getDayPercentage)
+        .filter(me -> !isCare(me))
+        .mapToDouble(MissionExecution::dayPercentage)
         .sum();
+  }
+
+  private boolean isCare(MissionExecution me) {
+    var mission = me.mission();
+    return mission.isCare(careProductCodeSupplier.get());
   }
 }

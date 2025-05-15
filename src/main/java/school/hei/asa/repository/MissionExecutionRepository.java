@@ -13,7 +13,6 @@ import school.hei.asa.model.Worker;
 import school.hei.asa.repository.jrepository.JMissionExecutionRepository;
 import school.hei.asa.repository.mapper.MissionExecutionMapper;
 import school.hei.asa.repository.mapper.WorkerMapper;
-import school.hei.asa.repository.model.JMissionExecution;
 
 @AllArgsConstructor
 @Component
@@ -24,7 +23,7 @@ public class MissionExecutionRepository {
 
   @Transactional
   public List<MissionExecution> findAllBy(Worker worker, LocalDate date) {
-    return missionExecutionsByDate(worker).getOrDefault(date, List.of());
+    return missionExecutionsByDateBetween(worker, date, date);
   }
 
   @Transactional
@@ -35,9 +34,11 @@ public class MissionExecutionRepository {
   }
 
   @Transactional
-  public List<JMissionExecution> missionExecutionsByDateBetween(
+  public List<MissionExecution> missionExecutionsByDateBetween(
       Worker worker, LocalDate startDate, LocalDate endDate) {
-    return jMissionExecutionRepository.findByWorkerCodeAndDateBetween(
-        workerMapper.toEntity(worker).getCode(), startDate, endDate);
+    var jmeList =
+        jMissionExecutionRepository.findByWorkerCodeAndDateBetween(
+            workerMapper.toEntity(worker).getCode(), startDate, endDate);
+    return missionExecutionMapper.toDomain(jmeList);
   }
 }

@@ -21,8 +21,7 @@ public class PsMissionExecutionRepository {
   }
 
   public void saveAll(List<JMissionExecution> executions) {
-
-    String sql =
+    var sql =
         "INSERT INTO mission_execution (id, mission_code, worker_code, date, day_percentage,"
             + " creation_instant, comment) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -31,7 +30,7 @@ public class PsMissionExecutionRepository {
         new BatchPreparedStatementSetter() {
           @Override
           public void setValues(PreparedStatement ps, int i) throws SQLException {
-            JMissionExecution execution = executions.get(i);
+            var execution = executions.get(i);
             ps.setString(1, execution.getId());
             ps.setString(2, execution.getMission().getCode());
             ps.setString(3, execution.getWorker().getCode());
