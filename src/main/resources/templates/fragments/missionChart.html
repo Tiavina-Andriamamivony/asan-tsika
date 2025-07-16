@@ -1,0 +1,67 @@
+<div th:fragment="missionChart(months, total)" class="bg-white shadow-lg rounded-lg p-6 mt-6">
+    <div class="flex items-center mb-4">
+        <h2 class="text-xl font-semibold">Mission Execution Summary</h2>
+    </div>
+    
+    <div class="w-full h-64">
+        <canvas id="missionChart"></canvas>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('missionChart').getContext('2d');
+            
+            // Extract data from Thymeleaf
+            const months = /*[[${months.keySet()}]]*/ [];
+            const monthLabels = months.map(month => month.charAt(0).toUpperCase() + month.slice(1));
+            
+            // Extract total values for each month
+            const totalData = [];
+            
+            /*[# th:each="month : ${months.keySet()}"]*/
+                const monthKey = /*[[${month}]]*/ '';
+                const totalValue = /*[[${total[month]}]]*/ 0;
+                if (totalValue !== undefined) {
+                    totalData.push(totalValue);
+                } else {
+                    totalData.push(0);
+                }
+            /*[/]*/
+            
+            // Create the chart
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        label: 'Total Executed Days',
+                        data: totalData,
+                        backgroundColor: 'rgba(153, 51, 204, 0.6)',
+                        borderColor: 'rgba(153, 51, 204, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Executed Days'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</div>
