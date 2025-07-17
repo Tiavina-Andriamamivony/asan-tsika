@@ -16,10 +16,16 @@
 
     <h2 class="text-xl font-bold mt-6" th:text="'Missions by Products - ' + ${worker == null ? 'All' : worker.name()}"></h2>
     <strong>"st="</strong> refers to days executed by a <strong>st</strong>udent worker.
-    
+
+    <div class="mt-6 mb-6" style="text-align: center;">
+        <img th:src="@{'data:image/png;base64,' + ${pieChartImage}}"
+             alt="Répartition par produit"
+             style="max-width: 100%; height: auto;"/>
+    </div>
     <!-- le chartttt -->
     <div th:replace="fragments/missionChart :: missionChart(${months}, ${total})"></div>
-    <div th:replace="fragments/missionDetailChart :: missionDetailChart(${months}, ${products})"></div>
+<!--    <div th:replace="fragments/missionChart :: missionChart(${months}, ${total})"></div>-->
+<!--    <div th:replace="fragments/missionDetailChart :: missionDetailChart(${months}, ${products})"></div>-->
 </div>
 
 <div class="ml-6 mr-6 flex gap-6">
