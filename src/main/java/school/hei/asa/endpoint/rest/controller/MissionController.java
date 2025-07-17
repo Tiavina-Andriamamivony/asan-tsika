@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.groupingBy;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -47,17 +46,12 @@ public class MissionController {
         missionService.thProductsExecutedDaysSumByMonth(thProductsByWorkerCode);
 
     DefaultPieDataset dataset = new DefaultPieDataset();
-    thProductsByWorkerCode.forEach(p ->
-        dataset.setValue(p.code() + " (" + p.name() + ")", p.executedDays())
-    );
+    thProductsByWorkerCode.forEach(
+        p -> dataset.setValue(p.code() + " (" + p.name() + ")", p.executedDays()));
 
-    JFreeChart chart = ChartFactory.createPieChart(
-        "Répartition des jours exécutés par produit",
-        dataset,
-        true,
-        true,
-        false
-    );
+    JFreeChart chart =
+        ChartFactory.createPieChart(
+            "Répartition des jours exécutés par produit", dataset, true, true, false);
 
     PiePlot plot = (PiePlot) chart.getPlot();
     plot.setSectionPaint(dataset.getKey(0), new Color(79, 129, 189));
