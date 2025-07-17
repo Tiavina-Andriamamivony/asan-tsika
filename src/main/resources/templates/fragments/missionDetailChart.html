@@ -13,12 +13,12 @@
             const ctx = document.getElementById('missionDetailChart').getContext('2d');
             
             // Extract data from Thymeleaf
-            const monthsData = /*[[${months}]]*/ {};
+            const monthsData = [[${months}]] {};
             const monthKeys = Object.keys(monthsData);
             const monthLabels = monthKeys.map(month => month.charAt(0).toUpperCase() + month.slice(1));
             
             // Get all products
-            const allProducts = /*[[${products}]]*/ [];
+            const allProducts = *[[${products}]] [];
             const productDatasets = [];
             
             // Create a color palette

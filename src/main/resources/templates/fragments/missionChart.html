@@ -13,15 +13,15 @@
             const ctx = document.getElementById('missionChart').getContext('2d');
             
             // Extract data from Thymeleaf
-            const months = /*[[${months.keySet()}]]*/ [];
+            const months = [[${months.keySet()}]] [];
             const monthLabels = months.map(month => month.charAt(0).toUpperCase() + month.slice(1));
             
             // Extract total values for each month
             const totalData = [];
             
             /*[# th:each="month : ${months.keySet()}"]*/
-                const monthKey = /*[[${month}]]*/ '';
-                const totalValue = /*[[${total[month]}]]*/ 0;
+                const monthKey = [[${month}]] '';
+                const totalValue = [[${total[month]}]] 0;
                 if (totalValue !== undefined) {
                     totalData.push(totalValue);
                 } else {
