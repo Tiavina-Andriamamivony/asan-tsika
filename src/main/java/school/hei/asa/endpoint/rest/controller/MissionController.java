@@ -63,9 +63,10 @@ public class MissionController {
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     try {
-      ChartUtils.writeChartAsPNG(out, chart, 600, 400);
+      ChartUtils.writeChartAsPNG(out, chart, 1200, 900);
       String base64Image = Base64.getEncoder().encodeToString(out.toByteArray());
       model.addAttribute("pieChartImage", base64Image);
+      ChartUtils.saveChartAsPNG(new File("chart.png"), chart, 1200, 900);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
