@@ -51,12 +51,15 @@ public class MissionController {
 
     JFreeChart chart =
         ChartFactory.createPieChart(
-            "Répartition des jours exécutés par produit", dataset, true, true, false);
+            "Distribution of days worked by product", dataset, true, true, false);
 
     PiePlot plot = (PiePlot) chart.getPlot();
-    plot.setSectionPaint(dataset.getKey(0), new Color(79, 129, 189));
-    plot.setSectionPaint(dataset.getKey(1), new Color(192, 80, 77));
-    plot.setSectionPaint(dataset.getKey(2), new Color(155, 187, 89));
+    plot.setSectionPaint(dataset.getKey(0), new Color(46, 52, 89));
+    plot.setSectionPaint(dataset.getKey(1), new Color(206, 111, 143));
+    plot.setSectionPaint(dataset.getKey(2), new Color(122, 92, 204));
+    plot.setSectionPaint(dataset.getKey(3), new Color(0, 163, 204));
+    plot.setSectionPaint(dataset.getKey(4), new Color(242, 206, 0));
+    plot.setSectionPaint(dataset.getKey(5), new Color(227, 148, 0));
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     try {
