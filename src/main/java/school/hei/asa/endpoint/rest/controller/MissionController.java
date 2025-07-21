@@ -5,6 +5,9 @@ import static java.util.stream.Collectors.groupingBy;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -12,11 +15,16 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,6 +85,22 @@ public class MissionController {
     model.addAttribute("total", thProductsExecutedDaysSumByMonth);
     workerToModelAdder.apply(workerCode, model);
     return "missions";
+  }
+
+  @SneakyThrows
+  @GetMapping("/mission/download-chart")
+  public ResponseEntity<ByteArrayResource> downloadChart() {
+    File file = new File("chart.png");
+    ByteArrayResource resource =
+        new ByteArrayResource(Files.readAllBytes(Path.of(file.getAbsolutePath())));
+    HttpHeaders header = new HttpHeaders();
+    header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=chart.png");
+
+    return ResponseEntity.ok()
+        .headers(header)
+        .contentLength(file.length())
+        .contentType(MediaType.parseMediaType("application/octet-stream"))
+        .body(resource);
   }
 
   @GetMapping("/mission-executions")
