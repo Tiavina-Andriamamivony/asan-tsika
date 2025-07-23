@@ -1,0 +1,100 @@
+<div th:fragment="missionDetailChart(months, products)" class="bg-white shadow-lg rounded-lg p-6 mt-6">
+    <div class="flex items-center mb-4">
+        <h2 class="text-xl font-semibold">Mission Execution Details</h2>
+    </div>
+    
+    <div class="w-full h-80">
+        <canvas id="missionDetailChart"></canvas>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('missionDetailChart').getContext('2d');
+            
+            // Extract data from Thymeleaf
+            const monthsData = [[${months}]] {};
+            const monthKeys = Object.keys(monthsData);
+            const monthLabels = monthKeys.map(month => month.charAt(0).toUpperCase() + month.slice(1));
+            
+            // Get all products
+            const allProducts = *[[${products}]] [];
+            const productDatasets = [];
+            
+            // Create a color palette
+            const generateColor = (index) => {
+                const hue = (index * 137.5) % 360;
+                return `hsla(${hue}, 70%, 60%, 0.7)`;
+            };
+            
+            // Create datasets for each product
+            allProducts.forEach((product, index) => {
+                const productData = [];
+                
+                monthKeys.forEach(month => {
+                    // Find this product in the month data
+                    const monthProducts = monthsData[month] || [];
+                    const productInMonth = monthProducts.find(p => p.code === product.code());
+                    
+                    if (productInMonth && productInMonth.executedDays() > 0) {
+                        productData.push(productInMonth.executedDays());
+                    } else {
+                        productData.push(0);
+                    }
+                });
+                
+                // Only add products that have data
+                if (productData.some(value => value > 0)) {
+                    productDatasets.push({
+                        label: product.code() + ': ' + product.name(),
+                        data: productData,
+                        backgroundColor: generateColor(index),
+                        borderColor: generateColor(index).replace('0.7', '1'),
+                        borderWidth: 1
+                    });
+                }
+            });
+            
+            // Create the chart
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: monthLabels,
+                    datasets: productDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Executed Days'
+                            }
+                        },
+                        x: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y.toFixed(2);
+                                    return `${label}: ${value} days`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</div>
