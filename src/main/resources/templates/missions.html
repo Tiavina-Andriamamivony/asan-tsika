@@ -10,27 +10,31 @@
 <body class="bg-gray-50 text-gray-800">
 <div th:replace="fragments/header :: header"></div>
 
-<div class="ml-6 mr-6 mt-6">
-    <h2 class="text-xl font-bold mb-2">Worker</h2>
-    <div th:replace="fragments/workerSelector :: workerSelector(missions, All)"></div>
-
-    <h2 class="text-xl font-bold mt-6" th:text="'Missions by Products - ' + ${worker == null ? 'All' : worker.name()}"></h2>
-    <strong>"st="</strong> refers to days executed by a <strong>st</strong>udent worker.
-
-    <div class="mt-6 mb-6 flex flex-col gap-6" style="text-align: center;">
-        <img th:src="@{'data:image/png;base64,' + ${pieChartImage}}"
-             alt="Répartition par produit"
-             style="max-width: 100%; height: auto;"/>
-        <a th:href="@{|/mission/download-chart|}">
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
-                Download Chart
-            </button>
-        </a>
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4">Worker</h2>
+        <div th:replace="fragments/workerSelector :: workerSelector(missions, All)"></div>
     </div>
-    <!-- le chartttt -->
-    <div th:replace="fragments/missionChart :: missionChart(${months}, ${total})"></div>
-<!--    <div th:replace="fragments/missionChart :: missionChart(${months}, ${total})"></div>-->
-<!--    <div th:replace="fragments/missionDetailChart :: missionDetailChart(${months}, ${products})"></div>-->
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4" th:text="'Missions by Products - ' + ${worker == null ? 'All' : worker.name()}"></h2>
+        <p class="text-gray-600 mb-4"><strong class="text-indigo-600">"st="</strong> refers to days executed by a <strong class="text-indigo-600">st</strong>udent worker.</p>
+
+        <div class="mt-6 mb-6 flex flex-col gap-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                <img th:src="@{'data:image/png;base64,' + ${pieChartImage}}"
+                    alt="Répartition par produit"
+                    class="max-w-full h-auto mx-auto rounded-lg" />
+                <div class="mt-4 text-center">
+                    <a th:href="@{|/mission/download-chart|}">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                            Download Chart
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <!-- le chartttt -->
+    <!--    <div th:replace="fragments/missionDetailChart :: missionDetailChart(${months}, ${products})"></div>-->
 </div>
 
 <div class="ml-6 mr-6 flex gap-6">
