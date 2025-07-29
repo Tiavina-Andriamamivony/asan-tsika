@@ -65,16 +65,15 @@ public class MissionController {
   @SneakyThrows
   @GetMapping("/mission/download-chart")
   public ResponseEntity<ByteArrayResource> downloadChart() {
-    String filePath = System.getProperty("java.io.tmpdir") + "/";
-    File file = new File(filePath + LocalDate.now() + ".png");
+    File chartFile = chartPieService.getChartFile();
     ByteArrayResource resource =
-        new ByteArrayResource(Files.readAllBytes(Path.of(file.getAbsolutePath())));
+        new ByteArrayResource(Files.readAllBytes(Path.of(chartFile.getAbsolutePath())));
     HttpHeaders header = new HttpHeaders();
     header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + LocalDate.now() + ".png");
 
     return ResponseEntity.ok()
         .headers(header)
-        .contentLength(file.length())
+        .contentLength(chartFile.length())
         .contentType(MediaType.parseMediaType("application/octet-stream"))
         .body(resource);
   }
