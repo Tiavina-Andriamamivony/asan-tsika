@@ -55,7 +55,7 @@ public class MissionController {
 
     DefaultPieDataset dataset = new DefaultPieDataset();
     thProductsByWorkerCode.forEach(
-        p -> dataset.setValue(p.code() + " (" + p.name() + ")", p.executedDays()));
+          p -> dataset.setValue(p.code() + " (" + p.name() + ")", p.executedDays()));
 
     JFreeChart chart =
         ChartFactory.createPieChart(
@@ -71,7 +71,7 @@ public class MissionController {
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     try {
-      ChartUtils.writeChartAsPNG(out, chart, 1200, 900);
+      ChartUtils.writeChartAsPNG(out, chart, 900, 600);
       String base64Image = Base64.getEncoder().encodeToString(out.toByteArray());
       model.addAttribute("pieChartImage", base64Image);
       ChartUtils.saveChartAsPNG(new File("chart.png"), chart, 1200, 900);
@@ -106,6 +106,7 @@ public class MissionController {
   @GetMapping("/mission-executions")
   public String getMissionExecutions(
       Model model,
+
       @RequestParam(required = false) String workerCode,
       @RequestParam(required = false) String yearMonth) {
     YearMonth month =
