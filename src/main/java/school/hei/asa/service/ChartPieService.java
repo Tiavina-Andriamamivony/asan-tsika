@@ -18,6 +18,7 @@ public class ChartPieService {
   private final String tempDirPath = System.getProperty("java.io.tmpdir");
 
   public String generatePieChartImage(DefaultPieDataset dataset) {
+    String fileName = LocalDate.now() + "-chart.png";
     JFreeChart chart =
         ChartFactory.createPieChart(
             "Distribution of days worked by product", dataset, true, true, false);
@@ -37,11 +38,18 @@ public class ChartPieService {
 
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       ChartUtils.writeChartAsPNG(out, chart, 1200, 900);
+      File chartFile = new File(tempDirPath, fileName);
+
+      if (chartFile.exists()){
+        chartFile.delete();
+      }
       ChartUtils.saveChartAsPNG(
-          new File(tempDirPath + "/" + LocalDate.now() + ".png"), chart, 900, 600);
+          chartFile, chart, 900, 600);
       return Base64.getEncoder().encodeToString(out.toByteArray());
     } catch (IOException e) {
       throw new RuntimeException("Failed to generate chart image", e);
     }
   }
+
+
 }
