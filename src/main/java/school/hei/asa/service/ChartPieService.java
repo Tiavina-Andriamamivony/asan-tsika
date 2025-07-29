@@ -50,6 +50,13 @@ public class ChartPieService {
       throw new RuntimeException("Failed to generate chart image", e);
     }
   }
-
+  public File getChartFile() {
+    String fileName = LocalDate.now() + "-chart.png";
+    File chartFile = new File(tempDirPath, fileName);
+    if (!chartFile.exists()) {
+      throw new RuntimeException("Chart file not found: " + chartFile.getAbsolutePath());
+    }
+    return chartFile;
+  }
 
 }
