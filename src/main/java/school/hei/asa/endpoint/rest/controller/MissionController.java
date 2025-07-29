@@ -40,6 +40,7 @@ public class MissionController {
   private final WorkerToModelAdder workerToModelAdder;
   private final MissionService missionService;
   private final ChartPieService chartPieService;
+
   @GetMapping("/missions")
   public String getMissions(Model model, @RequestParam(required = false) String workerCode) {
     var thProductsByWorkerCode = missionService.filterThProductsByWorkerCode(workerCode);
@@ -51,7 +52,6 @@ public class MissionController {
     thProductsByWorkerCode.forEach(
         p -> dataset.setValue(p.code() + " (" + p.name() + ")", p.executedDays()));
     String base64Chart = chartPieService.generatePieChartImage(dataset);
-
 
     model.addAttribute("pieChartImage", base64Chart);
     model.addAttribute("workerCode", workerCode);
