@@ -40,16 +40,16 @@ public class ChartPieService {
       ChartUtils.writeChartAsPNG(out, chart, 1200, 900);
       File chartFile = new File(tempDirPath, fileName);
 
-      if (chartFile.exists()){
+      if (chartFile.exists()) {
         chartFile.delete();
       }
-      ChartUtils.saveChartAsPNG(
-          chartFile, chart, 900, 600);
+      ChartUtils.saveChartAsPNG(chartFile, chart, 900, 600);
       return Base64.getEncoder().encodeToString(out.toByteArray());
     } catch (IOException e) {
       throw new RuntimeException("Failed to generate chart image", e);
     }
   }
+
   public File getChartFile() {
     String fileName = LocalDate.now() + "-chart.png";
     File chartFile = new File(tempDirPath, fileName);
@@ -58,5 +58,4 @@ public class ChartPieService {
     }
     return chartFile;
   }
-
 }
