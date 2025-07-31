@@ -3,23 +3,16 @@ package school.hei.asa.endpoint.rest.controller;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 
-import java.awt.*;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtils;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -56,6 +49,8 @@ public class MissionController {
         missionService.thProductsExecutedDaysSumByMonth(thProductsByWorkerCode);
 
     DefaultPieDataset dataset = new DefaultPieDataset();
+    thProductsByWorkerCode.forEach(
+        p -> dataset.setValue(p.code() + " (" + p.name() + ")", p.executedDays()));
     String base64Pie = chartPieService.generatePieChartImage(dataset);
 
     model.addAttribute("pieChartImage", base64Pie);
@@ -70,12 +65,11 @@ public class MissionController {
   @SneakyThrows
   @GetMapping("/mission/download-chart")
   public ResponseEntity<ByteArrayResource> downloadChart() {
-    String fileName = LocalDate.now() + "-chart.png";
     File file = chartPieService.getChartFile();
     ByteArrayResource resource =
         new ByteArrayResource(Files.readAllBytes(Path.of(file.getAbsolutePath())));
     HttpHeaders header = new HttpHeaders();
-    header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+    header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName() );
 
     return ResponseEntity.ok()
         .headers(header)
