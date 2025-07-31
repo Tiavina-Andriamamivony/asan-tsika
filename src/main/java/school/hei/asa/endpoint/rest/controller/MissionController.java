@@ -34,6 +34,7 @@ import school.hei.asa.endpoint.rest.controller.mapper.ThDailyExecutionMapper;
 import school.hei.asa.endpoint.rest.model.th.ThDailyExecution;
 import school.hei.asa.model.DailyExecution;
 import school.hei.asa.repository.DailyExecutionRepository;
+import school.hei.asa.service.ChartPieService;
 import school.hei.asa.service.MissionService;
 
 @Controller
@@ -45,6 +46,7 @@ public class MissionController {
   private final ThDailyExecutionMapper thDailyExecutionMapper;
   private final WorkerToModelAdder workerToModelAdder;
   private final MissionService missionService;
+  private final ChartPieService chartPieService;
 
   @GetMapping("/missions")
   public String getMissions(Model model, @RequestParam(required = false) String workerCode) {
@@ -54,31 +56,9 @@ public class MissionController {
         missionService.thProductsExecutedDaysSumByMonth(thProductsByWorkerCode);
 
     DefaultPieDataset dataset = new DefaultPieDataset();
-    thProductsByWorkerCode.forEach(
-        p -> dataset.setValue(p.code() + " (" + p.name() + ")", p.executedDays()));
+    String base64Pie = chartPieService.generatePieChartImage(dataset);
 
-    JFreeChart chart =
-        ChartFactory.createPieChart(
-            "Distribution of days worked by product", dataset, true, true, false);
-
-    PiePlot plot = (PiePlot) chart.getPlot();
-    plot.setSectionPaint(dataset.getKey(0), new Color(46, 52, 89));
-    plot.setSectionPaint(dataset.getKey(1), new Color(206, 111, 143));
-    plot.setSectionPaint(dataset.getKey(2), new Color(122, 92, 204));
-    plot.setSectionPaint(dataset.getKey(3), new Color(0, 163, 204));
-    plot.setSectionPaint(dataset.getKey(4), new Color(242, 206, 0));
-    plot.setSectionPaint(dataset.getKey(5), new Color(227, 148, 0));
-
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    try {
-      ChartUtils.writeChartAsPNG(out, chart, 900, 600);
-      String base64Image = Base64.getEncoder().encodeToString(out.toByteArray());
-      model.addAttribute("pieChartImage", base64Image);
-      ChartUtils.saveChartAsPNG(new File("chart.png"), chart, 1200, 900);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-
+    model.addAttribute("pieChartImage", base64Pie);
     model.addAttribute("workerCode", workerCode);
     model.addAttribute("months", thProductsByMonth);
     model.addAttribute("products", thProductsByWorkerCode);
@@ -90,11 +70,12 @@ public class MissionController {
   @SneakyThrows
   @GetMapping("/mission/download-chart")
   public ResponseEntity<ByteArrayResource> downloadChart() {
-    File file = new File("chart.png");
+    String fileName = LocalDate.now() + "-chart.png";
+    File file = chartPieService.getChartFile();
     ByteArrayResource resource =
         new ByteArrayResource(Files.readAllBytes(Path.of(file.getAbsolutePath())));
     HttpHeaders header = new HttpHeaders();
-    header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=chart.png");
+    header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
 
     return ResponseEntity.ok()
         .headers(header)
