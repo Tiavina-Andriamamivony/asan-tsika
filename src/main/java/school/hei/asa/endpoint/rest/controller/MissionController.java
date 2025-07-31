@@ -69,7 +69,7 @@ public class MissionController {
     ByteArrayResource resource =
         new ByteArrayResource(Files.readAllBytes(Path.of(file.getAbsolutePath())));
     HttpHeaders header = new HttpHeaders();
-    header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName() );
+    header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
 
     return ResponseEntity.ok()
         .headers(header)
