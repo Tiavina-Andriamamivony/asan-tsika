@@ -4,46 +4,50 @@ import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Stream;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
-import org.joda.time.LocalDate;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ChartPieService {
   private final String tempDirPath = System.getProperty("java.io.tmpdir");
-
+  private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
   public String generatePieChartImage(DefaultPieDataset dataset) {
-    String fileName = LocalDate.now() + "-chart.png";
-    JFreeChart chart =
-        ChartFactory.createPieChart(
-            "Distribution of days worked by product", dataset, true, true, false);
+    String timestamp = LocalDateTime.now().format(formatter);
+    String fileName = timestamp + "-chart.png";
+
+    JFreeChart chart = ChartFactory.createPieChart(
+        "Distribution of days worked by product", dataset, true, true, false);
 
     PiePlot plot = (PiePlot) chart.getPlot();
-    if (dataset.getItemCount() >= 1) plot.setSectionPaint(dataset.getKey(0), new Color(46, 52, 89));
-    if (dataset.getItemCount() >= 2)
-      plot.setSectionPaint(dataset.getKey(1), new Color(206, 111, 143));
-    if (dataset.getItemCount() >= 3)
-      plot.setSectionPaint(dataset.getKey(2), new Color(122, 92, 204));
-    if (dataset.getItemCount() >= 4)
-      plot.setSectionPaint(dataset.getKey(3), new Color(0, 163, 204));
-    if (dataset.getItemCount() >= 5)
-      plot.setSectionPaint(dataset.getKey(4), new Color(242, 206, 0));
-    if (dataset.getItemCount() >= 6)
-      plot.setSectionPaint(dataset.getKey(5), new Color(227, 148, 0));
+    Color[] colors = {
+        new Color(46, 52, 89),
+        new Color(206, 111, 143),
+        new Color(122, 92, 204),
+        new Color(0, 163, 204),
+        new Color(242, 206, 0),
+        new Color(227, 148, 0)
+    };
+    int itemCount = dataset.getItemCount();
+    for (int i = 0; i < Math.min(itemCount, colors.length); i++) {
+      plot.setSectionPaint(dataset.getKey(i), colors[i]);
+    }
 
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       ChartUtils.writeChartAsPNG(out, chart, 1200, 900);
-      File chartFile = new File(tempDirPath, fileName);
 
-      if (chartFile.exists()) {
-        chartFile.delete();
-      }
+      File chartFile = new File(tempDirPath, fileName);
       ChartUtils.saveChartAsPNG(chartFile, chart, 900, 600);
+
+
       return Base64.getEncoder().encodeToString(out.toByteArray());
     } catch (IOException e) {
       throw new RuntimeException("Failed to generate chart image", e);
@@ -51,11 +55,28 @@ public class ChartPieService {
   }
 
   public File getChartFile() {
-    String fileName = LocalDate.now() + "-chart.png";
-    File chartFile = new File(tempDirPath, fileName);
-    if (!chartFile.exists()) {
-      throw new RuntimeException("Chart file not found: " + chartFile.getAbsolutePath());
+    File tempDir = new File(tempDirPath);
+
+    return Optional.ofNullable(tempDir.listFiles((dir, name) -> name.endsWith("-chart.png")))
+        .flatMap(files -> Arrays.stream(files).max(Comparator.comparing(File::lastModified)))
+        .orElseThrow(() -> new RuntimeException("No chart file found in " + tempDirPath));
+  }
+
+  private void cleanupOldChartFiles() {
+    File tempDir = new File(tempDirPath);
+    File[] chartFiles = tempDir.listFiles((dir, name) -> name.endsWith("-chart.png"));
+    if (chartFiles == null || chartFiles.length == 0) {
+      return;
     }
-    return chartFile;
+
+    File latestFile = Arrays.stream(chartFiles)
+        .max(Comparator.comparingLong(File::lastModified))
+        .orElse(null);
+
+    for (File file : chartFiles) {
+      if (!file.equals(latestFile)) {
+        file.delete();
+      }
+    }
   }
 }
