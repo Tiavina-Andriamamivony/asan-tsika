@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Invoice</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&amp;display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-size: 10px;
+            font-family: 'EB Garamond', serif;
+            font-weight: 400;
+            margin: 40px 0 40px 20px;
+        }
+
+        header {
+            margin-top: 50px;
+            margin-bottom: 10px;
+        }
+
+        .table-head {
+            width: 100%;
+        }
+
+        .table-head p {
+            margin: 2px 0;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+        }
+
+        .table-head p:first-child {
+            font-weight: 600;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-justify {
+            text-align: justify;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-family: 'EB Garamond', serif;
+        }
+
+        th {
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 6px;
+            font-size: 12px;
+            font-family: 'EB Garamond', serif;
+        }
+
+        thead th {
+            border-bottom: 2px solid black;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid grey;
+        }
+
+        tbody tr:first-child {
+            border-top: none;
+        }
+
+        tbody table tr:nth-child(odd) {
+            background-color: #dddddd;
+        }
+
+        .main-table tbody > * {
+            page-break-after: auto;
+            page-break-before: auto;
+        }
+
+        .main-table tbody td {
+            border-bottom: 1px solid lightgrey;
+        }
+
+        .main-table th {
+            font-size: 15px;
+            font-family: 'EB Garamond', serif;
+            font-weight: 700;
+        }
+
+        .main-table td {
+            font-size: 14px;
+            font-family: 'EB Garamond', serif;
+            padding: 9px 6px;
+        }
+
+        .amount-section p {
+            border: 1px solid black;
+            padding: 4px 8px;
+            margin-left: 250px;
+            width: 150px;
+        }
+
+        #footer {
+            display: block;
+        }
+
+        #footer p {
+            margin: 2px 0;
+            letter-spacing: 0.08px;
+            line-height: 1.2;
+        }
+
+        #content {
+            page-break-inside: auto;
+            margin-top: 100px;
+        }
+
+        @page {
+            size: A4;
+            margin-top: 50px;
+            margin-bottom: 120px;
+            @bottom-center {
+                content: element(footer)
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <table class="table-head">
+        <tr>
+            <td>
+                <p th:text="${worker.fullname}"><strong></strong></p>
+                <p th:text="${worker.address}"></p>
+                <p th:text="${worker.city}"></p>
+                <p th:text="${'NIF: ' + worker.nif + ' -  STAT: ' + worker.stat}" class="text-justify"></p>
+            </td>
+        </tr>
+    </table>
+</header>
+
+<hr style="border: none; border-top: 0.3px solid #444; margin: 10px 0 2px 0;"/>
+
+<div id="footer">
+    <table style="width: 100%;">
+        <tr>
+            <td style="width: 43%; vertical-align: top;">
+                <p th:text="'Facture : ' + ${invoice.reference}" style="font-family: 'EB Garamond', serif; font-weight: 700;"></p>
+                <p th:text="'Date d\'émission : ' + ${invoice.issueDate}" style="font-family: 'EB Garamond', serif; font-weight: 700;"></p>
+            </td>
+            <td style="width: 57%; vertical-align: top;">
+                <p><strong>NUMER MADAGASCAR (SARLU)</strong></p>
+                <p>Lot II M 92 Antsakaviro</p>
+                <p>101 Antananarivo, Madagascar</p>
+                <p>RCS : 2022 B 007111 - NIF : 4011 84 6446 - STAT : 62022 11 2022 0 10730</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="content">
+    <section>
+        <table style="margin: 10px 0 20px 0; table-layout: fixed; border-top: 1px solid black;" class="main-table">
+        <thead>
+            <tr>
+                <th class="text-left" style="width: 230px;">Description</th>
+                <th class="text-center">Quantité</th>
+                <th class="text-center">Prix unitaire</th>
+                <th class="text-right">Montant</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="text-left" style="width: 230px; word-wrap: break-word;" th:text="${invoice.description}"></td>
+                <td class="text-center" th:text="${invoice.quantity}"></td>
+                <td class="text-center" th:text="${invoice.unitPrice}"></td>
+                <td class="text-right" th:text="${invoice.amount}"></td>
+            </tr>
+            <tr th:if="${invoice.hasBonus}">
+                <td class="text-left" style="width: 230px; word-wrap: break-word;" th:text="${invoice.bonusDescription}"></td>
+                <td class="text-center" th:text="${invoice.bonusQuantity}"></td>
+                <td class="text-center" th:text="${invoice.bonusUnitPrice}"></td>
+                <td class="text-right" th:text="${invoice.bonusAmount}"></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border-bottom: none;"></td>
+                <td class="text-left" style="font-size: 15px; font-family: 'EB Garamond', serif; font-weight: 700;"> Total</td>
+                <td class="text-right" style="font-size: 15px; font-family: 'EB Garamond', serif; font-weight: 700;" th:text="${invoice.total}" ></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 100px; display: flex; gap: 10px; align-items: center;">
+            <span style="font-family: 'EB Garamond', serif; font-size: 14px; font-weight: 400;">
+                Montant total arrêté à la somme de :
+            </span>
+            <span style="font-family: 'EB Garamond', serif; font-size: 15px; font-weight: 700;" th:text="${invoice.parsedAmount + ' Ariary'}"></span>
+        </div>
+
+        <div style="margin-top: 60px; display: flex; gap: 8px; align-items: center;">
+            <span style="font-family: 'EB Garamond', serif; font-size: 14px; font-weight: 400;">
+                Signature
+            </span>
+        </div>
+    </section>
+</div>
+</body>
+</html>

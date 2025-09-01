@@ -1,6 +1,5 @@
 package school.hei.asa.endpoint;
 
-import static java.time.LocalDate.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -13,16 +12,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import school.hei.asa.conf.FacadeIT;
-import school.hei.asa.endpoint.rest.controller.CalendarController;
+import school.hei.asa.endpoint.rest.controller.InvoiceController;
 import school.hei.asa.endpoint.rest.controller.WorkerToModelAdder;
-import school.hei.asa.endpoint.rest.model.th.ThYear;
+import school.hei.asa.endpoint.rest.model.th.ThInvoiceForm;
 import school.hei.asa.endpoint.rest.security.WorkerFromAuthentication;
 import school.hei.asa.model.PartnerContractor;
 import school.hei.asa.model.Worker;
 
-class CalendarControllerIT extends FacadeIT {
+class InvoiceControllerIT extends FacadeIT {
 
-  @Autowired CalendarController calendarController;
+  @Autowired InvoiceController invoiceController;
 
   @MockBean WorkerFromAuthentication workerFromAuthentication;
   @MockBean WorkerToModelAdder workerToModelAdder;
@@ -52,20 +51,12 @@ class CalendarControllerIT extends FacadeIT {
   }
 
   @Test
-  void can_get_calendar_without_worker_code() {
-    String viewName = calendarController.getCalendar(model, authentication, null);
+  void can_get_invoice() {
+    var invoiceForm = new ThInvoiceForm(null, null, "", "", "", "", "", false, "", "", "", "", "");
+    String viewName = invoiceController.getInvoicePage(model, authentication, invoiceForm);
 
-    verify(model).addAttribute(eq("year"), eq(now().getYear()));
-    verify(model).addAttribute(eq("thYear"), any(ThYear.class));
-    assertEquals("calendar", viewName);
-  }
-
-  @Test
-  void can_get_calendar_with_worker_code() {
-    String viewName = calendarController.getCalendar(model, authentication, "worker-code");
-
-    verify(model).addAttribute(eq("year"), eq(now().getYear()));
-    verify(model).addAttribute(eq("thYear"), any(ThYear.class));
-    assertEquals("calendar", viewName);
+    verify(model).addAttribute(eq("invoicePreview"), any(String.class));
+    verify(model).addAttribute(eq("form"), any(ThInvoiceForm.class));
+    assertEquals("invoice-generator", viewName);
   }
 }

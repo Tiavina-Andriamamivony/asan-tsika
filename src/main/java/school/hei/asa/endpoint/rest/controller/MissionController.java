@@ -5,9 +5,7 @@ import static java.util.stream.Collectors.groupingBy;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,11 +35,22 @@ public class MissionController {
     var thProductsExecutedDaysSumByMonth =
         missionService.thProductsExecutedDaysSumByMonth(thProductsByWorkerCode);
 
+    List<Map<String, Object>> executedDaysByProduct = new ArrayList<>();
+    for (var product : thProductsByWorkerCode) {
+      Map<String, Object> dataPoint = new HashMap<>();
+      dataPoint.put("productCode", product.code());
+      dataPoint.put("productName", product.name());
+      dataPoint.put("executedDaysByProduct", product.executedDays());
+      executedDaysByProduct.add(dataPoint);
+    }
+
     model.addAttribute("workerCode", workerCode);
     model.addAttribute("months", thProductsByMonth);
     model.addAttribute("products", thProductsByWorkerCode);
     model.addAttribute("total", thProductsExecutedDaysSumByMonth);
     workerToModelAdder.apply(workerCode, model);
+    model.addAttribute("executedDaysByProduct", executedDaysByProduct);
+
     return "missions";
   }
 
