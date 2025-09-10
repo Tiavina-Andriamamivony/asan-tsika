@@ -31,15 +31,20 @@ public class MissionController {
   private final MissionService missionService;
 
   @GetMapping("/missions")
-  public String getMissions(Model model, @RequestParam(required = false) String workerCode) {
-    var thProductsByWorkerCode = missionService.filterThProductsByWorkerCode(workerCode);
+  public String getMissions(
+      Model model,
+      @RequestParam(required = false) String workerCode,
+      @RequestParam(required = false) String startDate,
+      @RequestParam(required = false) String endDate) {
+
+    var thProductsByWorkerCode =
+        missionService.filterThProductByWorkerCodeAndDateBetween(workerCode, startDate, endDate);
     var thProductsByMonth = missionService.thProductsByMonth(thProductsByWorkerCode);
     var thProductsExecutedDaysSumByMonth =
         missionService.thProductsExecutedDaysSumByMonth(thProductsByWorkerCode);
-    var thMissionsByWorkerCode =
+    var thMissionsPerProductsByWorkerCode =
         missionService.filterThMissionsByWorkerCode(thProductsByWorkerCode);
-    var thMissionsExecutedDaysSumByMont =
-        missionService.thMissionsExecutedDaysSumByMonth(thMissionsByWorkerCode);
+    var thMissionsByWorkerCode = missionService.thMissionsByWorkerCode(thProductsByWorkerCode);
 
     List<Map<String, Object>> executedDaysByProduct = new ArrayList<>();
     for (var product : thProductsByWorkerCode) {
@@ -51,6 +56,16 @@ public class MissionController {
       executedDaysByProduct.add(dataPoint);
     }
 
+    List<Map<String, Object>> executedDaysByProductMission = new ArrayList<>();
+    for (var mission : thMissionsPerProductsByWorkerCode) {
+      Map<String, Object> dataPoint = new HashMap<>();
+      dataPoint.put("code", mission.getCode());
+      dataPoint.put("name", mission.getTitle());
+      dataPoint.put("executedDays", mission.executedDays());
+      dataPoint.put("studentExecutedDays", mission.studentExecutedDays());
+      executedDaysByProductMission.add(dataPoint);
+    }
+
     List<Map<String, Object>> executedDaysByMission = new ArrayList<>();
     for (var mission : thMissionsByWorkerCode) {
       Map<String, Object> dataPoint = new HashMap<>();
@@ -60,14 +75,16 @@ public class MissionController {
       dataPoint.put("studentExecutedDays", mission.studentExecutedDays());
       executedDaysByMission.add(dataPoint);
     }
-    log.debug("executedDaysByMission ==> {}", executedDaysByMission);
 
     model.addAttribute("workerCode", workerCode);
+    model.addAttribute("startDate", startDate);
+    model.addAttribute("endDate", endDate);
     model.addAttribute("months", thProductsByMonth);
     model.addAttribute("products", thProductsByWorkerCode);
     model.addAttribute("total", thProductsExecutedDaysSumByMonth);
     workerToModelAdder.apply(workerCode, model);
     model.addAttribute("executedDaysByProduct", executedDaysByProduct);
+    model.addAttribute("executedDaysByProductMission", executedDaysByProductMission);
     model.addAttribute("executedDaysByMission", executedDaysByMission);
 
     return "missions";

@@ -1,6 +1,11 @@
+var chartInstances = [];
+
 function updateFilters() {
-  const workerCode = document.getElementById("worker").value;
-  window.location.href = `/missions?workerCode=${workerCode}`;
+  const workerCode = document.getElementById("worker").value || "";
+
+  const startDate = document.getElementById("startDate").value || "";
+  const endDate = document.getElementById("endDate").value || startDate;
+  window.location.href = `/missions?workerCode=${workerCode}&startDate=${startDate}&endDate=${endDate}`;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -8,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (workerSelect) {
     workerSelect.addEventListener("change", updateFilters);
   }
+
   const showGraphBtn = document.getElementById("showGraphBtn");
   const graphModal = document.getElementById("graphModal");
   const closeModal = document.getElementById("closeModal");
@@ -15,30 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
   showGraphBtn.addEventListener("click", function () {
     graphModal.classList.remove("hidden");
     setTimeout(() => {
-      drawPieChart(
-        productChartData,
-        pieChartProductContainer,
-        productTitle,
-        pieChartProductInstance,
-      );
-      drawPieChart(
-        missionChartData,
-        pieChartMissionContainer,
-        missionTitle,
-        pieChartMissionInstance,
-      );
-      drawBarChart(
-        productChartData,
-        barChartProductContainer,
-        productTitle,
-        barChartProductInstance,
-      );
-      drawBarChart(
-        missionChartData,
-        barChartMissionContainer,
-        missionTitle,
-        barChartMissionInstance,
-      );
+      chartInstances = drawChart();
+      console.log(chartInstances);
     }, 200);
   });
 
@@ -61,30 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!graphModal.classList.contains("hidden")) {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(function () {
-        drawPieChart(
-          productChartData,
-          pieChartProductContainer,
-          productTitle,
-          pieChartProductInstance,
-        );
-        drawPieChart(
-          missionChartData,
-          pieChartMissionContainer,
-          missionTitle,
-          pieChartMissionInstance,
-        );
-        drawBarChart(
-          productChartData,
-          barChartProductContainer,
-          productTitle,
-          barChartProductInstance,
-        );
-        drawBarChart(
-          missionChartData,
-          barChartMissionContainer,
-          missionTitle,
-          barChartMissionInstance,
-        );
+        chartInstances = drawChart();
       }, 250);
     }
   });
