@@ -20,7 +20,13 @@ jobs:
 
     env:
       AWS_REGION: eu-west-3
-      
+      SERVER_USE_FORWARD_HEADERS: ${{
+              (github.event_name == 'pull_request' && github.base_ref == 'prod') && secrets.PROD_SERVER_USE_FORWARD_HEADERS ||
+              (github.event_name == 'pull_request' && github.base_ref == 'preprod') && secrets.PREPROD_SERVER_USE_FORWARD_HEADERS ||
+              (github.ref == 'refs/heads/prod') && secrets.PROD_SERVER_USE_FORWARD_HEADERS ||
+              (github.ref == 'refs/heads/preprod') && secrets.PREPROD_SERVER_USE_FORWARD_HEADERS
+              }}
+
 
     steps:
       - uses: actions/checkout@v4.1.6
