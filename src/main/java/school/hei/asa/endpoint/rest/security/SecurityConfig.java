@@ -73,6 +73,7 @@ public class SecurityConfig {
                           log.info("Authorities: {}", authentication.getAuthorities());
                           oAuth2SuccessHandler.onAuthenticationSuccess(
                               request, response, authentication);
+                          response.sendRedirect("/");
                         })
                     .failureHandler(
                         // On success redirection from Casdoor URL instead of

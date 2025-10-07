@@ -15,7 +15,7 @@ public class GeneratedStateAuthorizationRequestRepository
   @Override
   public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
     var state = request.getParameter("state");
-    return store.get(state);
+    return state != null ? store.get(state) : null;
   }
 
   @Override
@@ -23,18 +23,14 @@ public class GeneratedStateAuthorizationRequestRepository
       OAuth2AuthorizationRequest authorizationRequest,
       HttpServletRequest request,
       HttpServletResponse response) {
-
-    var generatedState = StateGenerator.generateState();
-
-    var modifiedRequest =
-        OAuth2AuthorizationRequest.from(authorizationRequest).state(generatedState).build();
-
-    store.put(generatedState, modifiedRequest);
+    if (authorizationRequest != null) {
+      store.put(authorizationRequest.getState(), authorizationRequest);
+    }
   }
 
   public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
     var state = request.getParameter("state");
-    return store.remove(state);
+    return state != null ? store.remove(state) : null;
   }
 
   @Override
