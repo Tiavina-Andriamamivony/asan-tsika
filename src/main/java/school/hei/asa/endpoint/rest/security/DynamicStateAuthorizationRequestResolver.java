@@ -5,43 +5,42 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DynamicStateAuthorizationRequestResolver
     implements OAuth2AuthorizationRequestResolver {
 
-  private final OAuth2AuthorizationRequestResolver defaultResolver;
-  private final GeneratedStateAuthorizationRequestRepository stateRepository;
+  private final DefaultOAuth2AuthorizationRequestResolver defaultResolver;
 
   public DynamicStateAuthorizationRequestResolver(
-      ClientRegistrationRepository repo,
-      String baseUri,
-      GeneratedStateAuthorizationRequestRepository stateRepository) {
-    this.defaultResolver = new DefaultOAuth2AuthorizationRequestResolver(repo, baseUri);
-    this.stateRepository = stateRepository;
+      ClientRegistrationRepository clientRegistrationRepository) {
+    this.defaultResolver =
+        new DefaultOAuth2AuthorizationRequestResolver(
+            clientRegistrationRepository, "/oauth2/authorization");
   }
 
   @Override
   public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
-    var req = defaultResolver.resolve(request);
-    return generateDynamicState(req, request);
+    var authorizationRequest = defaultResolver.resolve(request);
+    return customizeAuthorizationRequest(authorizationRequest);
   }
 
   @Override
   public OAuth2AuthorizationRequest resolve(
       HttpServletRequest request, String clientRegistrationId) {
-    var req = defaultResolver.resolve(request, clientRegistrationId);
-    return generateDynamicState(req, request);
+    var authorizationRequest = defaultResolver.resolve(request, clientRegistrationId);
+    return customizeAuthorizationRequest(authorizationRequest);
   }
 
-  private OAuth2AuthorizationRequest generateDynamicState(
-      OAuth2AuthorizationRequest req, HttpServletRequest request) {
-    if (req == null) return null;
+  private OAuth2AuthorizationRequest customizeAuthorizationRequest(
+      OAuth2AuthorizationRequest authorizationRequest) {
+    if (authorizationRequest == null) {
+      return null;
+    }
 
-    var state = StateGenerator.generateState();
-    var modified = OAuth2AuthorizationRequest.from(req).state(state).build();
+    var newState = StateGenerator.generateState();
 
-    stateRepository.saveAuthorizationRequest(modified, request, null);
-
-    return modified;
+    return OAuth2AuthorizationRequest.from(authorizationRequest).state(newState).build();
   }
 }

@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -23,7 +22,8 @@ public class SecurityConfig {
   private final String casdoorLogoutUrl;
   private final String asaLogoutUrl;
   private final OAuth2SuccessHandler oAuth2SuccessHandler;
-  private final ClientRegistrationRepository clientRegistrationRepository;
+  private final DynamicStateAuthorizationRequestResolver customResolver;
+  private final GeneratedStateAuthorizationRequestRepository customRepo;
 
   public SecurityConfig(
       @Value("${spring.security.oauth2.client.registration.casdoor.clientid}")
@@ -31,17 +31,14 @@ public class SecurityConfig {
       @Value("${casdoor.logout.url}") String casdoorLogoutUrl,
       @Value("${asa.logout.url}") String asaLogoutUrl,
       OAuth2SuccessHandler oAuth2SuccessHandler,
-      ClientRegistrationRepository clientRegistrationRepository) {
+      DynamicStateAuthorizationRequestResolver customResolver,
+      GeneratedStateAuthorizationRequestRepository customRepo) {
     this.casdoorClientId = casdoorClientId;
     this.casdoorLogoutUrl = casdoorLogoutUrl;
     this.asaLogoutUrl = asaLogoutUrl;
     this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-    this.clientRegistrationRepository = clientRegistrationRepository;
-  }
-
-  @Bean
-  public GeneratedStateAuthorizationRequestRepository generatedStateRepository() {
-    return new GeneratedStateAuthorizationRequestRepository();
+    this.customResolver = customResolver;
+    this.customRepo = customRepo;
   }
 
   @Bean
@@ -61,11 +58,8 @@ public class SecurityConfig {
                 oauth2
                     .authorizationEndpoint(
                         auth ->
-                            auth.authorizationRequestResolver(
-                                new DynamicStateAuthorizationRequestResolver(
-                                    clientRegistrationRepository,
-                                    "/oauth2/authorization",
-                                    generatedStateRepository())))
+                            auth.authorizationRequestResolver(customResolver)
+                                .authorizationRequestRepository(customRepo))
                     .successHandler(
                         (request, response, authentication) -> {
                           log.info("✅ OAuth2 login SUCCESS");

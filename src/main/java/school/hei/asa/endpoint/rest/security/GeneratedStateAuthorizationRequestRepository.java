@@ -2,20 +2,21 @@ package school.hei.asa.endpoint.rest.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GeneratedStateAuthorizationRequestRepository
     implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
-  private final ConcurrentHashMap<String, OAuth2AuthorizationRequest> store =
-      new ConcurrentHashMap<>();
+  private final HttpSessionOAuth2AuthorizationRequestRepository delegate =
+      new HttpSessionOAuth2AuthorizationRequestRepository();
 
   @Override
   public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-    var state = request.getParameter("state");
-    return state != null ? store.get(state) : null;
+    return delegate.loadAuthorizationRequest(request);
   }
 
   @Override
@@ -23,19 +24,16 @@ public class GeneratedStateAuthorizationRequestRepository
       OAuth2AuthorizationRequest authorizationRequest,
       HttpServletRequest request,
       HttpServletResponse response) {
-    if (authorizationRequest != null) {
-      store.put(authorizationRequest.getState(), authorizationRequest);
+    if (authorizationRequest == null) {
+      delegate.removeAuthorizationRequest(request, response);
+      return;
     }
-  }
-
-  public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
-    var state = request.getParameter("state");
-    return state != null ? store.remove(state) : null;
+    delegate.saveAuthorizationRequest(authorizationRequest, request, response);
   }
 
   @Override
   public OAuth2AuthorizationRequest removeAuthorizationRequest(
       HttpServletRequest request, HttpServletResponse response) {
-    return removeAuthorizationRequest(request);
+    return delegate.removeAuthorizationRequest(request, response);
   }
 }
