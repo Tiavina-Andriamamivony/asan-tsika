@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,31 +21,35 @@ public class SecurityConfig {
   private final String casdoorLogoutUrl;
   private final String asaLogoutUrl;
   private final OAuth2SuccessHandler oAuth2SuccessHandler;
+  private final Oauth2StatePaddingFixFilter statePaddingFixFilter;
 
   public SecurityConfig(
       @Value("${spring.security.oauth2.client.registration.casdoor.clientid}")
           String casdoorClientId,
       @Value("${casdoor.logout.url}") String casdoorLogoutUrl,
       @Value("${asa.logout.url}") String asaLogoutUrl,
-      OAuth2SuccessHandler oAuth2SuccessHandler) {
+      OAuth2SuccessHandler oAuth2SuccessHandler,
+      Oauth2StatePaddingFixFilter statePaddingFixFilter) {
     this.casdoorClientId = casdoorClientId;
     this.casdoorLogoutUrl = casdoorLogoutUrl;
     this.asaLogoutUrl = asaLogoutUrl;
     this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+    this.statePaddingFixFilter = statePaddingFixFilter;
   }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(Customizer.withDefaults())
         .authorizeHttpRequests(
-            authz ->
-                authz
+            authorization ->
+                authorization
                     .requestMatchers("/casdoor-logout")
                     .permitAll()
                     .requestMatchers("/")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
+        .addFilterBefore(statePaddingFixFilter, BasicAuthenticationFilter.class)
         .oauth2Login(
             oauth2 ->
                 oauth2
