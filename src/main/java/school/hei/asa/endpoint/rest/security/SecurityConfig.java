@@ -1,29 +1,27 @@
 package school.hei.asa.endpoint.rest.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
-
-  private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
   private final String casdoorClientId;
   private final String casdoorLogoutUrl;
   private final String asaLogoutUrl;
   private final OAuth2SuccessHandler oAuth2SuccessHandler;
-  private final ClientRegistrationRepository clientRegistrationRepository;
+  private final Oauth2StatePaddingFixFilter statePaddingFixFilter;
 
   public SecurityConfig(
       @Value("${spring.security.oauth2.client.registration.casdoor.clientid}")
@@ -31,41 +29,30 @@ public class SecurityConfig {
       @Value("${casdoor.logout.url}") String casdoorLogoutUrl,
       @Value("${asa.logout.url}") String asaLogoutUrl,
       OAuth2SuccessHandler oAuth2SuccessHandler,
-      ClientRegistrationRepository clientRegistrationRepository) {
+      Oauth2StatePaddingFixFilter statePaddingFixFilter) {
     this.casdoorClientId = casdoorClientId;
     this.casdoorLogoutUrl = casdoorLogoutUrl;
     this.asaLogoutUrl = asaLogoutUrl;
     this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-    this.clientRegistrationRepository = clientRegistrationRepository;
-  }
-
-  @Bean
-  public GeneratedStateAuthorizationRequestRepository generatedStateRepository() {
-    return new GeneratedStateAuthorizationRequestRepository();
+    this.statePaddingFixFilter = statePaddingFixFilter;
   }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(Customizer.withDefaults())
         .authorizeHttpRequests(
-            authz ->
-                authz
+            authorization ->
+                authorization
                     .requestMatchers("/casdoor-logout")
                     .permitAll()
                     .requestMatchers("/")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
+        .addFilterBefore(statePaddingFixFilter, BasicAuthenticationFilter.class)
         .oauth2Login(
             oauth2 ->
                 oauth2
-                    .authorizationEndpoint(
-                        auth ->
-                            auth.authorizationRequestResolver(
-                                new DynamicStateAuthorizationRequestResolver(
-                                    clientRegistrationRepository,
-                                    "/oauth2/authorization",
-                                    generatedStateRepository())))
                     .successHandler(
                         (request, response, authentication) -> {
                           log.info("✅ OAuth2 login SUCCESS");
