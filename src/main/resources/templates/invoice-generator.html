@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body class="m-0 h-screen flex flex-col">
 
@@ -53,7 +52,7 @@
 
     <!-- Right section -->
     <div class="w-1/2 h-full overflow-auto">
-        <div id="pdf-viewer" class="w-full h-full"></div>
+        <iframe id="pdf-viewer" class="w-full h-full border-0"></iframe>
     </div>
 </div>
 
@@ -81,28 +80,7 @@
         const url = `/invoice/preview?${params.toString()}`;
 
         const viewer = document.getElementById('pdf-viewer');
-        viewer.innerHTML = '';
-
-        const loadingTask = pdfjsLib.getDocument(url);
-        loadingTask.promise.then(function (pdf) {
-            pdf.getPage(1).then(function (page) {
-                const scale = 1.2;
-                const viewport = page.getViewport({ scale });
-
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                viewer.appendChild(canvas);
-
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext);
-            });
-        });
+        viewer.src = url;
     }
 
     document.addEventListener("DOMContentLoaded", function () {
