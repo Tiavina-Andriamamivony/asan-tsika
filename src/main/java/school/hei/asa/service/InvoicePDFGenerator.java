@@ -1,5 +1,9 @@
 package school.hei.asa.service;
 
+import static java.time.LocalDateTime.now;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.FRENCH;
+
 import com.lowagie.text.DocumentException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,6 +50,7 @@ public class InvoicePDFGenerator {
 
   private Context configureContext(Worker worker, ThInvoiceForm thInvoiceForm) {
     Context context = new Context();
+    context.setVariable("creationDate", now().format(ofPattern("dd LLLL yyyy à HH:mm:ss", FRENCH)));
     context.setVariable("worker", worker);
     context.setVariable("invoice", thInvoiceForm);
 
