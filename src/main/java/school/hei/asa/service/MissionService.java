@@ -12,7 +12,6 @@ import java.time.Month;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -45,8 +44,21 @@ public class MissionService {
   private final WorkerLevelHistoryRepository workerLevelHistoryRepository;
   private final ThWorkerMapper thWorkerMapper;
 
-  private List<ThProduct> filterThProductsByWorkerCode(String workerCode) {
-    var thProducts = thProductMapper.toTh(productRepository.findAll());
+  private List<ThProduct> filterThProductsByWorkerCode(
+      String workerCode, boolean noUnpaidCareMissions) {
+    var thProducts =
+        thProductMapper.toTh(productRepository.findAll()).stream()
+            .map(
+                p ->
+                    new ThProduct(
+                        p.code(),
+                        p.name(),
+                        p.description(),
+                        p.missions().stream()
+                            .filter(m -> !m.isUnpaidCare() || !noUnpaidCareMissions)
+                            .toList(),
+                        p.isCare()))
+            .toList();
     return workerCode == null || workerCode.isBlank()
         ? thProducts.stream()
             .sorted(comparing(ThProduct::executedDays, naturalOrder()).reversed())
@@ -58,8 +70,8 @@ public class MissionService {
   }
 
   public List<ThProduct> filterThProductByWorkerCodeAndDateBetween(
-      String workerCode, String startDate, String endDate) {
-    var thProducts = filterThProductsByWorkerCode(workerCode);
+      String workerCode, String startDate, String endDate, boolean noUnpaidCareMissions) {
+    var thProducts = filterThProductsByWorkerCode(workerCode, noUnpaidCareMissions);
     if (startDate == null || startDate.isBlank() || endDate == null || endDate.isBlank()) {
       return thProducts;
     }
@@ -96,13 +108,14 @@ public class MissionService {
                         m.getTitle(),
                         m.getDescription(),
                         newMissionExecution,
-                        m.isCare()));
+                        m.isCare(),
+                        m.isUnpaidCare()));
               });
           result.add(new ThProduct(p.code(), p.name(), p.description(), newMissions, p.isCare()));
         });
     if (workerCode.isBlank() || workerCode == null) {
       return result.stream()
-          .sorted(Comparator.comparing(ThProduct::executedDays, naturalOrder()).reversed())
+          .sorted(comparing(ThProduct::executedDays, naturalOrder()).reversed())
           .toList();
     }
     return result.stream()
@@ -132,7 +145,8 @@ public class MissionService {
     return res;
   }
 
-  public Map<String, Double> thProductsExecutedDaysSumByMonth(List<ThProduct> thProducts) {
+  public Map<String, Double> thProductsExecutedDaysSumByMonth(
+      List<ThProduct> thProducts, boolean noUnpaidCareMissions) {
     EnumSet<Month> months = EnumSet.allOf(Month.class);
     Map<String, Double> res = new LinkedHashMap<>();
     months.forEach(
@@ -148,16 +162,20 @@ public class MissionService {
 
           if (hasExecutedDays) {
             res.putIfAbsent(
-                month.toString().toLowerCase(), thProductsExecutedDaysSum(monthProducts, month));
+                month.toString().toLowerCase(),
+                thProductsExecutedDaysSum(monthProducts, month, noUnpaidCareMissions));
           }
         });
     return res;
   }
 
-  public Double thProductsExecutedDaysSum(List<ThProduct> thProducts, Month month) {
+  public Double thProductsExecutedDaysSum(
+      List<ThProduct> thProducts, Month month, boolean noUnpaidCareMissions) {
     return thProducts.stream()
         .map(p -> p.filterByMonth(month))
-        .mapToDouble(ThProduct::executedDays)
+        .flatMap(p -> p.missions().stream())
+        .filter(m -> !m.isUnpaidCare() || !noUnpaidCareMissions)
+        .mapToDouble(ThMission::executedDays)
         .sum();
   }
 
@@ -188,7 +206,8 @@ public class MissionService {
                               m.getTitle(),
                               m.getDescription(),
                               m.getMissionExecutions(),
-                              m.isCare());
+                              m.isCare(),
+                              m.isUnpaidCare());
                       missions.add(newMission);
                     } else {
                       try {

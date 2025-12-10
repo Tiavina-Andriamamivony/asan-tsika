@@ -32,18 +32,18 @@ class MissionServiceIT extends FacadeIT {
         new ThMissionExecution(
             "me3", "worker", LocalDate.parse("2025-02-20"), 1, "comment", false, false);
     var mission1 =
-        new ThMission("code1", "mission1", "description", List.of(missionExecution1), false);
+        new ThMission("code1", "mission1", "description", List.of(missionExecution1), false, false);
     var mission2 =
-        new ThMission("code2", "mission2", "description", List.of(missionExecution2), false);
+        new ThMission("code2", "mission2", "description", List.of(missionExecution2), false, false);
     var mission3 =
-        new ThMission("code3", "mission3", "description", List.of(missionExecution3), false);
+        new ThMission("code3", "mission3", "description", List.of(missionExecution3), false, false);
     var thProducts =
         List.of(
             new ThProduct("code1", "product1", "description", List.of(mission1), false),
             new ThProduct("code2", "product2", "description", List.of(mission2), false),
             new ThProduct("code3", "product3", "description", List.of(mission3), false));
 
-    var thProducsByMonth = missionService.thProductsExecutedDaysSumByMonth(thProducts);
+    var thProducsByMonth = missionService.thProductsExecutedDaysSumByMonth(thProducts, true);
 
     var januaryExecutedDays = thProducsByMonth.get("january");
     var februaryExecutedDays = thProducsByMonth.get("february");
@@ -66,13 +66,17 @@ class MissionServiceIT extends FacadeIT {
         new ThMissionExecution(
             "me4", "worker", LocalDate.parse("2025-02-20"), 1, "comment", false, false);
     var mission1 =
-        new ThMission("code1", "mission-test1", "description", List.of(missionExecution1), false);
+        new ThMission(
+            "code1", "mission-test1", "description", List.of(missionExecution1), false, false);
     var mission2 =
-        new ThMission("code2", "mission-test1", "description", List.of(missionExecution2), false);
+        new ThMission(
+            "code2", "mission-test1", "description", List.of(missionExecution2), false, false);
     var mission3 =
-        new ThMission("code3", "mission-test2", "description", List.of(missionExecution3), false);
+        new ThMission(
+            "code3", "mission-test2", "description", List.of(missionExecution3), false, false);
     var mission4 =
-        new ThMission("code4", "mission-test2", "description", List.of(missionExecution4), false);
+        new ThMission(
+            "code4", "mission-test2", "description", List.of(missionExecution4), false, false);
     var thProducts =
         List.of(
             new ThProduct("code1", "product1", "description", List.of(mission1), false),
@@ -100,13 +104,17 @@ class MissionServiceIT extends FacadeIT {
         new ThMissionExecution(
             "me4", "worker", LocalDate.parse("2025-02-20"), 1, "comment", false, false);
     var mission1 =
-        new ThMission("code1", "mission-test1", "description", List.of(missionExecution1), false);
+        new ThMission(
+            "code1", "mission-test1", "description", List.of(missionExecution1), false, false);
     var mission2 =
-        new ThMission("code2", "mission-test1", "description", List.of(missionExecution2), false);
+        new ThMission(
+            "code2", "mission-test1", "description", List.of(missionExecution2), false, false);
     var mission3 =
-        new ThMission("code3", "mission-test2", "description", List.of(missionExecution3), false);
+        new ThMission(
+            "code3", "mission-test2", "description", List.of(missionExecution3), false, false);
     var mission4 =
-        new ThMission("code4", "mission-test2", "description", List.of(missionExecution4), false);
+        new ThMission(
+            "code4", "mission-test2", "description", List.of(missionExecution4), false, false);
     var thProducts =
         List.of(
             new ThProduct("code1", "product1", "description", List.of(mission1), false),
@@ -121,7 +129,8 @@ class MissionServiceIT extends FacadeIT {
 
   @Test
   void fetch_product_from_database() {
-    var thProducts = missionService.filterThProductByWorkerCodeAndDateBetween(null, null, null);
+    var thProducts =
+        missionService.filterThProductByWorkerCodeAndDateBetween(null, null, null, true);
 
     assertTrue(thProducts.size() == 1 || thProducts.size() == 2);
   }
@@ -141,13 +150,17 @@ class MissionServiceIT extends FacadeIT {
         new ThMissionExecution(
             "me4", "worker", LocalDate.parse("2025-02-20"), 1, "comment", false, false);
     var mission1 =
-        new ThMission("code1", "mission-test1", "description", List.of(missionExecution1), false);
+        new ThMission(
+            "code1", "mission-test1", "description", List.of(missionExecution1), false, false);
     var mission2 =
-        new ThMission("code2", "mission-test1", "description", List.of(missionExecution2), false);
+        new ThMission(
+            "code2", "mission-test1", "description", List.of(missionExecution2), false, false);
     var mission3 =
-        new ThMission("code3", "mission-test2", "description", List.of(missionExecution3), false);
+        new ThMission(
+            "code3", "mission-test2", "description", List.of(missionExecution3), false, false);
     var mission4 =
-        new ThMission("code4", "mission-test2", "description", List.of(missionExecution4), false);
+        new ThMission(
+            "code4", "mission-test2", "description", List.of(missionExecution4), false, false);
     var thProducts =
         List.of(
             new ThProduct("code1", "product1", "description", List.of(mission1), false),
@@ -187,12 +200,14 @@ class MissionServiceIT extends FacadeIT {
             "a mission",
             "a description",
             List.of(missionExecution1, missionExecution2),
+            false,
             false);
     var expected = new ThProduct("pCode0", "pname0", "pDescription0", List.of(mission), false);
 
     var actual =
         missionService
-            .filterThProductByWorkerCodeAndDateBetween("W-P-2024-01", "2024-06-01", "2024-08-01")
+            .filterThProductByWorkerCodeAndDateBetween(
+                "W-P-2024-01", "2024-06-01", "2024-08-01", true)
             .getFirst();
 
     assertEquals(expected, actual);
