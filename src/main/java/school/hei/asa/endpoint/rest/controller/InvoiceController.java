@@ -48,9 +48,12 @@ public class InvoiceController {
         invoiceForm.yearMonth() != null
             ? YearMonth.parse(invoiceForm.yearMonth(), pattern)
             : YearMonth.now();
-    var invoiceDetails = invoiceService.findInvoiceDetails(worker, yearMonth);
+    var monthInvoiceStatus = thInvoiceService.getMonthInvoiceStatusForWorker(worker);
+    var invoiceReference = invoiceService.findInvoiceReference(worker, yearMonth);
+
     model.addAttribute("yearMonthReference", invoiceForm.yearMonth());
-    model.addAttribute("invoiceDetails", invoiceDetails);
+    model.addAttribute("invoiceReference", invoiceReference);
+    model.addAttribute("monthInvoiceStatuses", monthInvoiceStatus);
 
     return "invoice-generator";
   }
@@ -61,14 +64,12 @@ public class InvoiceController {
     var workerCodeOrAuth = workerFromAuthentication.apply(authentication).get().code();
     var worker = workerToModelAdder.apply(workerCodeOrAuth, model);
     var invoice = thInvoiceService.extractInvoice(worker, invoiceForm);
-    var fileName =
-        thInvoiceService.generateInvoiceFileName(invoice.invoiceData().yearMonth(), worker.code());
 
     File pdfFile = invoicePDFGenerator.apply(worker, invoice.invoiceData(), "invoice");
     FileSystemResource resource = new FileSystemResource(pdfFile);
     return ResponseEntity.ok()
         .contentType(APPLICATION_PDF)
-        .header(CONTENT_DISPOSITION, "inline; filename=" + fileName)
+        .header(CONTENT_DISPOSITION, "inline; filename=invoice-preview")
         .body(resource);
   }
 
@@ -82,9 +83,11 @@ public class InvoiceController {
 
     File pdfFile = invoicePDFGenerator.apply(worker, invoice.invoiceData(), "invoice");
     var fileBytes = new FileInputStream(pdfFile).readAllBytes();
-    var fileName =
-        thInvoiceService.generateInvoiceFileName(invoice.invoiceData().yearMonth(), worker.code());
-    invoiceService.saveInvoice(fileName, invoice.invoiceData(), worker);
+    log.info("saving reference to database...");
+    thInvoiceService.saveInvoiceReference(invoice.invoiceData(), worker);
+    log.info("Generating name for bucket key...");
+    var fileName = thInvoiceService.generateInvoiceFileName(worker);
+    log.info("uploading...");
     bucketComponent.upload(pdfFile, INVOICES_FOLDER + fileName);
 
     return ResponseEntity.ok()

@@ -3,24 +3,24 @@ package school.hei.asa.service;
 import static java.math.BigDecimal.valueOf;
 import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.naturalOrder;
 import static java.util.UUID.randomUUID;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.asa.CareProductCodeSupplier;
-import school.hei.asa.endpoint.rest.model.th.ThInvoiceForm;
-import school.hei.asa.model.InvoiceDetails;
 import school.hei.asa.model.InvoiceForm;
+import school.hei.asa.model.InvoiceReference;
 import school.hei.asa.model.MissionExecution;
 import school.hei.asa.model.Worker;
 import school.hei.asa.model.WorkerLevelHistory;
 import school.hei.asa.repository.BankAccountRepository;
-import school.hei.asa.repository.InvoiceDetailsRepository;
+import school.hei.asa.repository.InvoiceReferenceRepository;
 import school.hei.asa.repository.MissionExecutionRepository;
 import school.hei.asa.repository.WorkerLevelHistoryRepository;
 import school.hei.asa.service.utils.NumberConverter;
@@ -36,13 +36,13 @@ public class InvoiceService {
   private final MissionExecutionRepository missionExecutionRepository;
   private final BankAccountRepository bankAccountRepository;
   private final CareProductCodeSupplier careProductCodeSupplier;
-  private final InvoiceDetailsRepository invoiceDetailsRepository;
+  private final InvoiceReferenceRepository invoiceReferenceRepository;
 
-  public Optional<InvoiceDetails> findInvoiceDetails(Worker worker, YearMonth yearMonth) {
-    var invoiceDetailsList = invoiceDetailsRepository.findInvoiceDetailsByWorker(worker);
-    log.info("here is the invoice result: {}", invoiceDetailsList);
-    return invoiceDetailsList.stream()
-        .filter(invoiceDetails -> invoiceDetails.yearMonth().equals(yearMonth))
+  public Optional<InvoiceReference> findInvoiceReference(Worker worker, YearMonth yearMonth) {
+    var invoiceReferenceList = invoiceReferenceRepository.findInvoiceReferenceByWorker(worker);
+    log.info("here is the invoice result: {}", invoiceReferenceList);
+    return invoiceReferenceList.stream()
+        .filter(invoiceReference -> invoiceReference.yearMonth().equals(yearMonth))
         .findFirst();
   }
 
@@ -163,13 +163,30 @@ public class InvoiceService {
     return mission.isCare(careProductCodeSupplier.get());
   }
 
-  public void saveInvoice(String fileName, ThInvoiceForm invoiceForm, Worker worker) {
-    var invoiceDetails =
-        new InvoiceDetails(
-            randomUUID().toString(),
-            YearMonth.parse(invoiceForm.yearMonth(), DateTimeFormatter.ofPattern("yyyy-MM")),
-            fileName,
-            worker);
-    invoiceDetailsRepository.saveInvoiceDetails(invoiceDetails);
+  public void saveInvoiceReference(InvoiceForm invoiceForm, Worker worker) {
+    var invoiceReference =
+        new InvoiceReference(randomUUID().toString(), invoiceForm.yearMonth(), null, worker);
+    invoiceReferenceRepository.saveInvoiceReference(invoiceReference);
+  }
+
+  public String generateInvoiceFileName(Worker worker) {
+    var savedInvoice =
+        invoiceReferenceRepository.findInvoiceReferenceByWorker(worker).stream()
+            .sorted(comparing(InvoiceReference::autoincrement, naturalOrder()).reversed())
+            .toList()
+            .getFirst();
+
+    return String.format("FAC-NUM-2025-%s-%s", worker.code(), savedInvoice.autoincrement());
+  }
+
+  public String getInvoiceBucketKey(Worker worker, YearMonth yearMonth) {
+    var invoiceReference =
+        invoiceReferenceRepository.findInvoiceReferenceByWorker(worker).stream()
+            .filter(ref -> ref.yearMonth().equals(yearMonth))
+            .sorted(comparing(InvoiceReference::autoincrement, naturalOrder()).reversed())
+            .findFirst()
+            .get();
+
+    return String.format("FAC-NUM-2025-%s-%s", worker.code(), invoiceReference.autoincrement());
   }
 }
