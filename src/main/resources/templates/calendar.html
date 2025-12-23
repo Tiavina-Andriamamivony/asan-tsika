@@ -18,7 +18,7 @@
             class="text-2xl font-semibold">
         </h1>
         <div class="pt-5">
-            <div th:replace="fragments/workerAndDatesSelector :: apply(work-and-care-calendar, Myself)"></div>
+            <div th:replace="fragments/workerAndYearSelector :: apply(work-and-care-calendar, Myself)"></div>
         </div>
     </div>
     <!-- Right section: Color Description -->
@@ -137,12 +137,9 @@
 
         function updateFilters() {
             const workerCode = document.getElementById("worker").value;
-            window.location.href = `/work-and-care-calendar?workerCode=${workerCode}`;
+            const year = document.getElementById("year").value;
+            window.location.href = `/work-and-care-calendar?workerCode=${workerCode}&year=${year}`;
         }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("worker").addEventListener("change", updateFilters);
-        });
     </script>
     <div th:replace="fragments/footer :: footer"></div>
 
