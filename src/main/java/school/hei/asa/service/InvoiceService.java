@@ -176,7 +176,7 @@ public class InvoiceService {
             .toList()
             .getFirst();
 
-    return String.format("FAC-NUM-2025-%s-%s", worker.code(), savedInvoice.autoincrement());
+    return String.format("FAC-NUM-2025-%s-%s.pdf", worker.code(), savedInvoice.autoincrement());
   }
 
   public String getInvoiceBucketKey(Worker worker, YearMonth yearMonth) {
@@ -187,6 +187,6 @@ public class InvoiceService {
             .findFirst()
             .get();
 
-    return String.format("FAC-NUM-2025-%s-%s", worker.code(), invoiceReference.autoincrement());
+    return String.format("FAC-NUM-2025-%s-%s.pdf", worker.code(), invoiceReference.autoincrement());
   }
 }
