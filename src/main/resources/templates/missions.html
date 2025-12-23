@@ -18,7 +18,7 @@
     <div class="ml-6 mr-6 mt-6">
       <h2 class="text-xl font-bold mb-2">Worker</h2>
       <div
-        th:replace="fragments/workerSelector :: workerSelector(missions, All)"
+        th:replace="fragments/workerAndDatesSelector :: apply(missions, All)"
       ></div>
 
       <div class="flex justify-between items-center mt-6">

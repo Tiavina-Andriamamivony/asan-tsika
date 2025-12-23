@@ -13,15 +13,7 @@
 <div class="m-6">
     <h2 class="text-xl font-bold mb-2">Worker & Month</h2>
     <div class="flex items-end gap-4">
-        <div th:replace="fragments/workerSelector :: workerSelector(mission-executions, All)"></div>
-
-        <div class="flex flex-col">
-            <label class="block text-gray-700 font-medium mb-2">Select a Month</label>
-            <input id="monthPicker" type="month"
-                   th:value="${month}"
-                   onchange="updateMonth(this.value)"
-                   class="w-64 p-2 border border-gray-300 rounded-lg" />
-        </div>
+        <div th:replace="fragments/workerAndDatesSelector :: apply(mission-executions, All)"></div>
     </div>
 </div>
 

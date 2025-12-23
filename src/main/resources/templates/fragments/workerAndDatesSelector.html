@@ -1,5 +1,5 @@
 <form
-  th:fragment="workerSelector(targetEndpoint, defaultOption)"
+  th:fragment="apply(targetEndpoint, defaultOption)"
   th:action="@{'/' + ${targetEndpoint}}"
   method="get"
   class="bg-gray-50 flex flex-row align-center gap-4"
@@ -56,6 +56,6 @@
     type="button"
     onclick="updateFilters()"
   >
-    Update Date Filter
+    Update Filters
   </button>
 </form>
