@@ -1,0 +1,32 @@
+<form
+  th:fragment="apply(targetEndpoint, defaultOption)"
+  th:action="@{'/' + ${targetEndpoint}}"
+  method="get"
+  class="bg-gray-50 flex flex-row align-center gap-4"
+>
+  <div class="flex flex-col">
+    <label for="worker" class="block text-gray-700 font-medium mb-2"
+      >Select a Worker</label
+    >
+    <div class="flex items-center gap-4">
+      <select
+        id="worker"
+        name="workerCode"
+        class="w-64 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9933CC] focus:outline-none"
+      >
+        <option
+          th:text="${defaultOption}"
+          value=""
+          th:selected="${workerCode == null or workerCode.isBlank()}"
+          class="text-gray-500"
+        ></option>
+        <option
+          th:each="worker : ${workers}"
+          th:value="${worker.code()}"
+          th:text="${worker.name()}"
+          th:selected="${worker.code() == workerCode}"
+        ></option>
+      </select>
+    </div>
+  </div>
+</form>
