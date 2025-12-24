@@ -19,12 +19,12 @@ import school.hei.asa.model.InvoiceReference;
 import school.hei.asa.model.MissionExecution;
 import school.hei.asa.model.Worker;
 import school.hei.asa.model.WorkerLevelHistory;
+import school.hei.asa.number.NumberConverter;
+import school.hei.asa.number.NumberParser;
 import school.hei.asa.repository.BankAccountRepository;
 import school.hei.asa.repository.InvoiceReferenceRepository;
 import school.hei.asa.repository.MissionExecutionRepository;
 import school.hei.asa.repository.WorkerLevelHistoryRepository;
-import school.hei.asa.service.utils.NumberConverter;
-import school.hei.asa.service.utils.NumberParser;
 
 @Slf4j
 @AllArgsConstructor

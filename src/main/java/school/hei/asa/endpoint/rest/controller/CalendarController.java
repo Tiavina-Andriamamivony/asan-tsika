@@ -39,8 +39,9 @@ public class CalendarController {
   public String getCalendar(
       Model model,
       Authentication authentication,
-      @RequestParam(required = false) String workerCode) {
-    var year = now().getYear();
+      @RequestParam(required = false) String workerCode,
+      @RequestParam(required = false) Integer year) {
+    year = year == null ? now().getYear() : year;
     model.addAttribute("year", year);
 
     var workerCodeOrAuth =

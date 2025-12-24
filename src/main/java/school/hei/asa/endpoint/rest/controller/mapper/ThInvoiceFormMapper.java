@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.asa.endpoint.rest.model.th.ThInvoiceForm;
 import school.hei.asa.model.InvoiceForm;
-import school.hei.asa.service.utils.NumberParser;
+import school.hei.asa.number.NumberParser;
 
 @Slf4j
 @AllArgsConstructor
