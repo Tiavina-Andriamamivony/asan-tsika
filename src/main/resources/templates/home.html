@@ -1,53 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title>Asa - Work management dashboard</title>
+    <title>Asa - Work Management Tool</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="h-screen bg-gray-50" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body class="h-screen bg-gray-50">
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container mx-auto p-12">
-    <h1 class="text-3xl font-bold mb-8 text-center">
-        <span sec:authorize="isAnonymous()">Work Management Dashboard</span>
-        <span sec:authorize="isAuthenticated()"
-              th:text="'Welcome ' + ${#authentication.getPrincipal().getAttribute('email').split('@')[0]} + ' !'">
-        </span>
-    </h1>
-
-    <p class="text-2xl font-light mb-8 text-center">Manage your missions efficiently and track work progress.</p>
-
-    <th:block th:with="
-    missionExplorerItems=${T(java.util.List).of(
-        'View all active missions',
-        'Track days spent per worker',
-        'Access mission details (Admin, Accounting, R&D)'
-    )},
-    workCalendarItems=${T(java.util.List).of(
-        'Visualize worked and break days',
-        'Color-coded for intuitive tracking',
-        'Annual work summary'
-    )},
-    dailyExecutionItems=${T(java.util.List).of(
-        'Time tracking per mission',
-        'Detail daily work logs',
-        'Percentage of hours spent'
-    )},
-    missionExecutionsItems=${T(java.util.List).of(
-        'View mission history',
-        'Total hours spent per mission',
-        'Archive of completed missions'
-    )}">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div th:replace="~{fragments/featureCard :: card('Mission Explorer', '📌', ${missionExplorerItems})}"></div>
-            <div th:replace="~{fragments/featureCard :: card('Work & Care Calendar', '📆', ${workCalendarItems})}"></div>
-            <div th:replace="~{fragments/featureCard :: card('Daily Execution', '⏳', ${dailyExecutionItems})}"></div>
-            <div th:replace="~{fragments/featureCard :: card('Missions Executions', '📊', ${missionExecutionsItems})}"></div>
-        </div>
-    </th:block>
-
 </div>
 
 <div th:replace="fragments/footer :: footer"></div>
