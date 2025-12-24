@@ -73,22 +73,22 @@ class WorkerControllerIT extends FacadeIT {
   }
 
   @Test
-  void can_get_worker_level_history_without_worker_code() {
-    String viewName = workerController.getWorkersLevelHistory(model, authentication, null);
+  void can_get_contracts_without_worker_code() {
+    String viewName = workerController.getContracts(model, authentication, null);
 
     verify(model).addAttribute(eq("worker"), any(Worker.class));
     verify(model).addAttribute(eq("workerCode"), eq("worker-code"));
     verify(model).addAttribute(eq("workerLevelHistory"), anyList());
-    assertEquals("worker-level-history", viewName);
+    assertEquals("contracts", viewName);
   }
 
   @Test
-  void can_get_worker_level_history_with_worker_code() {
-    String viewName = workerController.getWorkersLevelHistory(model, authentication, "worker-code");
+  void can_get_contracts_with_worker_code() {
+    String viewName = workerController.getContracts(model, authentication, "worker-code");
 
     verify(model).addAttribute(eq("worker"), any(Worker.class));
     verify(model).addAttribute(eq("workerCode"), eq("worker-code"));
     verify(model).addAttribute(eq("workerLevelHistory"), anyList());
-    assertEquals("worker-level-history", viewName);
+    assertEquals("contracts", viewName);
   }
 }

@@ -63,8 +63,8 @@ public class WorkerController {
     return "worker";
   }
 
-  @GetMapping("/worker-level-history")
-  public String getWorkersLevelHistory(
+  @GetMapping("/contracts")
+  public String getContracts(
       Model model,
       Authentication authentication,
       @RequestParam(required = false) String workerCode) {
@@ -80,6 +80,6 @@ public class WorkerController {
     model.addAttribute("worker", worker);
     model.addAttribute("workerCode", workerCodeOrAuth);
     model.addAttribute("workerLevelHistory", workerLevelHistories);
-    return "worker-level-history";
+    return "contracts";
   }
 }
